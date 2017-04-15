@@ -12,13 +12,12 @@ class MessageData {
     public MessageData() {
     }
 
-
-
     public void setData(String firstNumber, String secondNumber, String message) {
         firstPhoneNumber = firstNumber;
         secondPhoneNumber = secondNumber;
         messageText = message;
     }
+
 
     public String getFirstPhoneNumber() {
         return firstPhoneNumber;

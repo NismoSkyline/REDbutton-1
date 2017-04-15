@@ -10,9 +10,7 @@ import android.widget.Toast;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private static final String FIRST_NUMBER = "firstNumber";
-    private static final String SECOND_NUMBER = "secondNumber";
-    private static final String MESSAGE = "message";
+
     EditText firstNumberEditText;
     EditText secondNumberEditText;
     EditText messageEditText;
@@ -53,9 +51,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void saveDataInPref(String firstNumber, String secondNumber, String message) {
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(FIRST_NUMBER, firstNumber);
-        editor.putString(SECOND_NUMBER, secondNumber);
-        editor.putString(MESSAGE, message);
+        editor.putString(Constants.FIRST_NUMBER, firstNumber);
+        editor.putString(Constants.SECOND_NUMBER, secondNumber);
+        editor.putString(Constants.MESSAGE, message);
         editor.apply();
     }
 
@@ -65,17 +63,17 @@ public class SettingsActivity extends AppCompatActivity {
 
 
     private boolean isPrefSaved() {
-        if(preferences.getString(FIRST_NUMBER, "").length() != 0 &&
-                preferences.getString(SECOND_NUMBER, "").length() != 0 &&
-                preferences.getString(MESSAGE, "").length() != 0){
+        if(preferences.getString(Constants.FIRST_NUMBER, "").length() != 0 &&
+                preferences.getString(Constants.SECOND_NUMBER, "").length() != 0 &&
+                preferences.getString(Constants.MESSAGE, "").length() != 0){
             return true;
         } else return false;
     }
 
     private void loadDataFromPref() {
-        firstNumber = preferences.getString(FIRST_NUMBER, "");
-        secondNumber = preferences.getString(SECOND_NUMBER, "");
-        message = preferences.getString(MESSAGE, "");
+        firstNumber = preferences.getString(Constants.FIRST_NUMBER, "");
+        secondNumber = preferences.getString(Constants.SECOND_NUMBER, "");
+        message = preferences.getString(Constants.MESSAGE, "");
 
         firstNumberEditText.setText(firstNumber);
         secondNumberEditText.setText(secondNumber);
@@ -88,7 +86,7 @@ public class SettingsActivity extends AppCompatActivity {
         secondNumberEditText = (EditText)findViewById(R.id.secondNumberEditText);
         messageEditText = (EditText)findViewById(R.id.messageEditText);
         saveSettingsButton = (Button)findViewById(R.id.saveSettingsButton);
-        preferences = getPreferences(MODE_PRIVATE);
+        preferences = getSharedPreferences(Constants.SHARED_PREF_FILE, MODE_PRIVATE);
         messageData = new MessageData();
     }
 }
