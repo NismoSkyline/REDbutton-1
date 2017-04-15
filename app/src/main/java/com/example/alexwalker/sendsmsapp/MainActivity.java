@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     MessageData messageData;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +60,16 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
     }
 
 
@@ -129,5 +140,6 @@ public class MainActivity extends AppCompatActivity {
         sendButton = (Button) findViewById(R.id.redButton);
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("Events");
+        button = (Button)findViewById(R.id.button2);
     }
 }

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SendSmsApp</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
