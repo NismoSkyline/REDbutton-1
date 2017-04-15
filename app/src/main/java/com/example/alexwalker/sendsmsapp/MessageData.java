@@ -5,14 +5,27 @@ package com.example.alexwalker.sendsmsapp;
  */
 
 class MessageData {
-    private String phoneNumbers;
+    private String firstPhoneNumber;
+    private String secondPhoneNumber;
     private String messageText;
 
     public MessageData() {
     }
 
-    public String getPhoneNumbers() {
-        return phoneNumbers;
+
+
+    public void setData(String firstNumber, String secondNumber, String message) {
+        firstPhoneNumber = firstNumber;
+        secondPhoneNumber = secondNumber;
+        messageText = message;
+    }
+
+    public String getFirstPhoneNumber() {
+        return firstPhoneNumber;
+    }
+
+    public String getSecondPhoneNumber() {
+        return secondPhoneNumber;
     }
 
     public String getMessageText() {

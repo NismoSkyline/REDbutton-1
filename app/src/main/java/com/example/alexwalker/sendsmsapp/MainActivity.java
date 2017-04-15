@@ -23,7 +23,8 @@ public class MainActivity extends AppCompatActivity {
     EditText phoneNumberEditText;
     EditText messageEditText;
     Button sendButton;
-    String phoneNumber;
+    String firstPhoneNumber;
+    String secondPhoneNumber;
     String message;
     MessageData messageData;
 
@@ -37,13 +38,13 @@ public class MainActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                phoneNumber = messageData.getPhoneNumbers();
-                message = messageData.getMessageText();
+                getData();
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 1);
                 } else {
                     try {
-                        sendMessage(phoneNumber, message);
+                        sendMessage(firstPhoneNumber, message);
+                        sendMessage(secondPhoneNumber, message);
                         Toast.makeText(getApplicationContext(), "Sms sent", Toast.LENGTH_LONG).show();
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), "Sms fail. Please try again", Toast.LENGTH_LONG).show();
@@ -56,6 +57,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void getData() {
+        firstPhoneNumber = messageData.getFirstPhoneNumber();
+        secondPhoneNumber = messageData.getSecondPhoneNumber();
+        message = messageData.getMessageText();
     }
 
     @Override
@@ -84,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
             case 1:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     try {
-                        sendMessage(phoneNumber, message);
+                        sendMessage(firstPhoneNumber, message);
+                        sendMessage(secondPhoneNumber, message);
                         Toast.makeText(getApplicationContext(), "Sms sent", Toast.LENGTH_LONG).show();
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), "Sms fail. Please try again", Toast.LENGTH_LONG).show();
