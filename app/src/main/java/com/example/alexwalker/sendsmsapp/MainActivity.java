@@ -16,6 +16,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class MainActivity extends AppCompatActivity {
 
     Button sendButton;
@@ -23,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
     String secondPhoneNumber;
     String message;
     MessageData messageData;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +54,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                MessageData messageData = new MessageData(firstPhoneNumber, secondPhoneNumber, message);
+                databaseReference.push().setValue(messageData);
+
             }
         });
-
-
     }
 
 
@@ -121,5 +127,7 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         messageData = new MessageData();
         sendButton = (Button) findViewById(R.id.redButton);
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference().child("Events");
     }
 }
