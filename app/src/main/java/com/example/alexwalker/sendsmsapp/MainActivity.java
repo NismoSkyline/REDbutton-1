@@ -35,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getData();
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 1);
+                if (isPermissionGranted()) {
+                    requestPermission();
                 } else {
                     try {
                         sendMessage(firstPhoneNumber, message);
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
 
     private void getData() {
         SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREF_FILE, MODE_PRIVATE);
@@ -81,6 +82,16 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
 
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 1);
+    }
+
+    private boolean isPermissionGranted() {
+        if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
+            return true;
+        }else return false;
     }
 
     @Override

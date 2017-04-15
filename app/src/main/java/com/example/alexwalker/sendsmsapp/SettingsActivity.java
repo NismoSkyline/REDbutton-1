@@ -41,7 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 saveDataInPref(firstNumber, secondNumber, message);
                 if(isPrefSaved()){
-                    Toast.makeText(getApplicationContext(), "Information saved", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Data saved", Toast.LENGTH_LONG).show();
                 } else Toast.makeText(getApplicationContext(), "Save failed. Try again", Toast.LENGTH_LONG).show();
 
             }
