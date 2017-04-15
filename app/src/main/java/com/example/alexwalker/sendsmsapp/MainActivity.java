@@ -6,11 +6,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.PopupMenu;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     EditText phoneNumberEditText;
     EditText messageEditText;
     Button sendButton;
+    ImageButton menuImageButton;
     String phoneNumber;
     String message;
     MessageData messageData;
@@ -50,6 +54,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        menuImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(MainActivity.this, v);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.menu_items, popup.getMenu());
+                popup.show();
+            }
+        });
+
     }
 
     @Override
@@ -79,5 +93,6 @@ public class MainActivity extends AppCompatActivity {
         phoneNumberEditText = (EditText) findViewById(R.id.phoneNumberEditText);
         messageEditText = (EditText) findViewById(R.id.messageEditText);
         sendButton = (Button) findViewById(R.id.redButton);
+        menuImageButton = (ImageButton)findViewById(R.id.menuImageButton);
     }
 }
