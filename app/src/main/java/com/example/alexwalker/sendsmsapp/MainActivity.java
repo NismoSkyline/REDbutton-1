@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     Button sendButton;
     String phoneNumber;
     String message;
+    MessageData messageData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                phoneNumber = phoneNumberEditText.getText().toString();
-                message = messageEditText.getText().toString();
+                phoneNumber = messageData.getPhoneNumbers();
+                message = messageData.getMessageText();
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 1);
                 } else {
@@ -77,6 +78,6 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         phoneNumberEditText = (EditText) findViewById(R.id.phoneNumberEditText);
         messageEditText = (EditText) findViewById(R.id.messageEditText);
-        sendButton = (Button) findViewById(R.id.sendButton);
+        sendButton = (Button) findViewById(R.id.redButton);
     }
 }
