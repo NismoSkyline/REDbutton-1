@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
     }
 
     private FirebaseAuth.AuthStateListener getAuthStateListener() {
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     user.setUserEmail(userEmail);
                     textView1.setText(userName + "\n" + userEmail);
                     Log.v("User", "userData: " + userID + "\n" + userName + "\n" + userEmail);
-                }
+                } else textView1.setText("You need to log in \nand configure your settings");
 
             }
         };
@@ -334,6 +333,7 @@ public class MainActivity extends AppCompatActivity {
         sendButton = (Button) findViewById(R.id.redButton);
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("Events");
+        auth = FirebaseAuth.getInstance();
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         button = (Button)findViewById(R.id.button2);
         textView = (TextView)findViewById(R.id.textView);
