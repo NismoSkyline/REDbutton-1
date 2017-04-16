@@ -1,25 +1,41 @@
 package com.example.alexwalker.sendsmsapp;
 
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class SettingsActivity extends AppCompatActivity {
 
 
-    EditText firstNumberEditText;
-    EditText secondNumberEditText;
-    EditText messageEditText;
-    Button saveSettingsButton;
-    String firstNumber;
-    String secondNumber;
-    String message;
-    SharedPreferences preferences;
-    MessageData messageData;
+    private EditText firstNumberEditText;
+    private EditText secondNumberEditText;
+    private EditText messageEditText;
+    private Button saveSettingsButton;
+    private String firstNumber;
+    private String secondNumber;
+    private String message;
+    private SharedPreferences preferences;
+    private MessageData messageData;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
+    private FirebaseAuth auth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+    private FirebaseUser firebaseUser;
+    private String userID;
+    private String userName;
+    private String userEmail;
+    private Users user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +47,18 @@ public class SettingsActivity extends AppCompatActivity {
         if(isPrefSaved()){
             setData(firstNumber, secondNumber, message);
         }
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                firebaseUser = firebaseAuth.getCurrentUser();
+                if(firebaseUser != null) {
+                    userID = firebaseUser.getUid();
+                    userName = firebaseUser.getDisplayName();
+                    userEmail = firebaseUser.getEmail();
+                }
+            }
+        };
+        auth.addAuthStateListener(authStateListener);
 
         saveSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,9 +68,12 @@ public class SettingsActivity extends AppCompatActivity {
                 message = messageEditText.getText().toString();
 
                 saveDataInPref(firstNumber, secondNumber, message);
+                //user.setMessageData(firstNumber, secondNumber, message);
                 if(isPrefSaved()){
                     Toast.makeText(getApplicationContext(), "Data saved", Toast.LENGTH_LONG).show();
                 } else Toast.makeText(getApplicationContext(), "Save failed. Try again", Toast.LENGTH_LONG).show();
+
+                databaseReference.push().setValue(getUser());
 
             }
         });
@@ -81,6 +112,20 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
+    public Users getUser() {
+        user = new Users(userID, userName, userEmail,
+                firstNumber, secondNumber, message);
+        Log.v("User", "userDataFromSettingActivity: " + userID + "\n" + userName + "\n" + userEmail);
+        return user;
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (authStateListener != null) {
+            auth.removeAuthStateListener(authStateListener);
+        }
+    }
+
     private void init() {
         firstNumberEditText = (EditText)findViewById(R.id.firstNumberEditText);
         secondNumberEditText = (EditText)findViewById(R.id.secondNumberEditText);
@@ -88,5 +133,9 @@ public class SettingsActivity extends AppCompatActivity {
         saveSettingsButton = (Button)findViewById(R.id.saveSettingsButton);
         preferences = getSharedPreferences(Constants.SHARED_PREF_FILE, MODE_PRIVATE);
         messageData = new MessageData();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference().child("Users");
+        auth = FirebaseAuth.getInstance();
+        user = new Users();
     }
 }

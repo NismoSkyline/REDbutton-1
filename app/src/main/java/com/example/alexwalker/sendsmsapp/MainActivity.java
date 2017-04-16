@@ -34,22 +34,24 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button sendButton;
-    String firstPhoneNumber;
-    String secondPhoneNumber;
-    String message;
-    MessageData messageData;
+    private Button sendButton;
+    private String firstPhoneNumber;
+    private String secondPhoneNumber;
+    private String message;
+    private MessageData messageData;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
-    private FirebaseUser user;
+    private FirebaseUser firebaseUser;
     private MenuItem signInMenuItem;
     private MenuItem signOutMenuItem;
     private LocationManager locationManager;
     double latitudeGPS, longitudeGPS;
-    Button button;
-    TextView textView;
+    private Users user;
+    private Events events;
+    private Button button;
+    private TextView textView;
     private static final int RC_SIGN_IN = 10;
 
     @Override
@@ -74,7 +76,9 @@ public class MainActivity extends AppCompatActivity {
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         requestGPSPermission();
                     }else{
-                        Events events = new Events(latitudeGPS, longitudeGPS);
+                        user = new Users(user.getUserID(), user.getUserName(), user.getUserEmail(),
+                                user.getFirstNumber(), user.getSecondNumber(), user.getMessage());
+                        events = new Events(latitudeGPS, longitudeGPS, user);
                         databaseReference.push().setValue(events);
 
                     }
@@ -102,7 +106,16 @@ public class MainActivity extends AppCompatActivity {
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                user = firebaseAuth.getCurrentUser();
+                firebaseUser = firebaseAuth.getCurrentUser();
+                if (firebaseUser != null){
+                    String userID = firebaseUser.getUid();
+                    String userName = firebaseUser.getDisplayName();
+                    String userEmail = firebaseUser.getEmail();
+                    user.setUserID(userID);
+                    user.setUserName(userName);
+                    user.setUserEmail(userEmail);
+                    Log.v("User", "userData: " + userID + "\n" + userName + "\n" + userEmail);
+                }
 
             }
         };
@@ -127,9 +140,9 @@ public class MainActivity extends AppCompatActivity {
             try {
                 sendSMS(firstPhoneNumber, message);
                 sendSMS(secondPhoneNumber, message);
-                Toast.makeText(getApplicationContext(), "Sms sent", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Data sent", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "Sms fail. Please try again", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Fail. Please try again", Toast.LENGTH_LONG).show();
                 Log.v("SMS", "sms failed: " + e);
                 e.printStackTrace();
             }
@@ -262,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.sign_in_item:
-                if (user == null) {
+                if (firebaseUser == null) {
                     //   onSignOutCleanUp();
                     //Starts sign-in flow
                     startActivityForResult(
@@ -284,7 +297,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.sign_out_item:
                 auth.signOut();
-                Toast.makeText(MainActivity.this, "Your are logged out!", Toast.LENGTH_SHORT).show();
+                if(firebaseUser == null){
+                    Toast.makeText(MainActivity.this, "Your are logged out!", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
         }
@@ -292,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setAuthMenuItemsVisibility() {
-        if(user == null){
+        if(firebaseUser == null){
             signOutMenuItem.setVisible(false);
             signInMenuItem.setVisible(true);
         } else {
@@ -312,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         messageData = new MessageData();
+        user = new Users();
         sendButton = (Button) findViewById(R.id.redButton);
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("Events");
