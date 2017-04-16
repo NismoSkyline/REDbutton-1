@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private Events events;
     private Button button;
     private TextView textView;
+    private TextView textView1;
     private static final int RC_SIGN_IN = 10;
 
     @Override
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         init();
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 5, locationListenerGPS);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListenerGPS);
         auth = FirebaseAuth.getInstance();
         auth.addAuthStateListener(getAuthStateListener());
 
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                     user.setUserID(userID);
                     user.setUserName(userName);
                     user.setUserEmail(userEmail);
+                    textView1.setText(userName + "\n" + userEmail);
                     Log.v("User", "userData: " + userID + "\n" + userName + "\n" + userEmail);
                 }
 
@@ -140,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 sendSMS(firstPhoneNumber, message);
                 sendSMS(secondPhoneNumber, message);
-                Toast.makeText(getApplicationContext(), "Data sent", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Sms sent", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "Fail. Please try again", Toast.LENGTH_LONG).show();
                 Log.v("SMS", "sms failed: " + e);
@@ -242,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 2: //gps permission
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 5, locationListenerGPS);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListenerGPS);
                 }
                 break;
         }
@@ -300,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
                 if(firebaseUser == null){
                     Toast.makeText(MainActivity.this, "Your are logged out!", Toast.LENGTH_SHORT).show();
                 }
+                Log.v("Logout", "item pressed: " + item.getItemId() + "\n" + "should be:    " + R.id.sign_out_item);
                 break;
 
         }
@@ -334,5 +337,6 @@ public class MainActivity extends AppCompatActivity {
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         button = (Button)findViewById(R.id.button2);
         textView = (TextView)findViewById(R.id.textView);
+        textView1 = (TextView)findViewById(R.id.textView2);
     }
 }
