@@ -15,11 +15,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
+    private ArrayList<EventCoordinates> eventCoordinatesArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("Events");
+        eventCoordinatesArrayList = new ArrayList<>();
 
     }
 
@@ -48,14 +52,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setAllGesturesEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         databaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 EventCoordinates eventCoordinates = dataSnapshot.getValue(EventCoordinates.class);
-                LatLng eventLatLng = new LatLng(eventCoordinates.getLat(), eventCoordinates.getLng());
-                mMap.addMarker(new MarkerOptions().position(eventLatLng).title("Something happened here"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(eventLatLng));
+                eventCoordinatesArrayList.add(eventCoordinates);
+                LatLng eventLatLng = new LatLng(0, 0);
+                for(EventCoordinates coordinates : eventCoordinatesArrayList){
+                    eventLatLng = new LatLng(eventCoordinates.getLat(), eventCoordinates.getLng());
+                    mMap.addMarker(new MarkerOptions().position(eventLatLng).title("Something happened here"));
+                }
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 17));
             }
 
             @Override
