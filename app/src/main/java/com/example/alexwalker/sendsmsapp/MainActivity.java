@@ -24,8 +24,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,10 +41,16 @@ public class MainActivity extends AppCompatActivity {
     MessageData messageData;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
+    private FirebaseAuth auth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+    private FirebaseUser user;
+    private MenuItem signInMenuItem;
+    private MenuItem signOutMenuItem;
     private LocationManager locationManager;
     double latitudeGPS, longitudeGPS;
     Button button;
     TextView textView;
+    private static final int RC_SIGN_IN = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +59,10 @@ public class MainActivity extends AppCompatActivity {
 
         init();
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 5, locationListenerGPS);
+        auth = FirebaseAuth.getInstance();
+        auth.addAuthStateListener(getAuthStateListener());
+
+
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +95,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private FirebaseAuth.AuthStateListener getAuthStateListener() {
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                user = firebaseAuth.getCurrentUser();
+
+            }
+        };
+        return authStateListener;
     }
 
     //=======================
@@ -215,21 +241,72 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_items, menu);
+        signInMenuItem = menu.findItem(R.id.sign_in_item);
+        signOutMenuItem = menu.findItem(R.id.sign_out_item);
+        setAuthMenuItemsVisibility();
+        return true;
+    }
+
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        setAuthMenuItemsVisibility();
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        switch (item.getItemId()){
+            case R.id.settings_item:
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.sign_in_item:
+                if (user == null) {
+                    //   onSignOutCleanUp();
+                    //Starts sign-in flow
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setIsSmartLockEnabled(false)
+                                    .setProviders(Arrays.asList(
+                                            new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                            new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                    .build(),
+                            RC_SIGN_IN); //RC_SIGN_IN - request code
+                    //User is signed in
+                } else {
+                    //    onSignInInit(mFirebaseUser);
+                    Toast.makeText(MainActivity.this, "Your are logged in!", Toast.LENGTH_SHORT).show();
 
-        if (id == R.id.settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
+                }
+                auth.addAuthStateListener(getAuthStateListener());
+                break;
+            case R.id.sign_out_item:
+                auth.signOut();
+                Toast.makeText(MainActivity.this, "Your are logged out!", Toast.LENGTH_SHORT).show();
+                break;
+
         }
-
         return super.onOptionsItemSelected(item);
+    }
 
+    private void setAuthMenuItemsVisibility() {
+        if(user == null){
+            signOutMenuItem.setVisible(false);
+            signInMenuItem.setVisible(true);
+        } else {
+            signInMenuItem.setVisible(false);
+            signOutMenuItem.setVisible(true);
+        }
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (authStateListener != null) {
+            auth.removeAuthStateListener(authStateListener);
+        }
     }
 
     private void init() {

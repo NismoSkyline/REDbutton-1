@@ -3,9 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
+
     <item
-        android:id="@+id/settings"
-        android:orderInCategory="1"
-        android:title="settings"
-        app:showAsAction="ifRoom"/>
+        android:id="@+id/sign_in_item"
+        android:title="Sign in"
+        android:orderInCategory="1" />
+    <item
+        android:id="@+id/sign_out_item"
+        android:orderInCategory="2"
+        android:title="Sign out"/>
+    <item
+        android:id="@+id/settings_item"
+        android:orderInCategory="3"
+        android:title="Settings"/>
+
+
 </menu>
