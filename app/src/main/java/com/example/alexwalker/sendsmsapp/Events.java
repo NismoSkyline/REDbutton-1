@@ -4,14 +4,14 @@ package com.example.alexwalker.sendsmsapp;
  * Created by alexwalker on 15.04.17.
  */
 
-public class EventCoordinates {
+public class Events {
     private double lat;
     private double lng;
 
-    public EventCoordinates() {
+    public Events() {
     }
 
-    public EventCoordinates(double lat, double lng) {
+    public Events(double lat, double lng) {
         this.lat = lat;
         this.lng = lng;
     }

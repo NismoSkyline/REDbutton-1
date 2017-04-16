@@ -74,8 +74,9 @@ public class MainActivity extends AppCompatActivity {
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         requestGPSPermission();
                     }else{
-                        EventCoordinates eventCoordinates = new EventCoordinates(latitudeGPS, longitudeGPS);
-                        databaseReference.push().setValue(eventCoordinates);
+                        Events events = new Events(latitudeGPS, longitudeGPS);
+                        databaseReference.push().setValue(events);
+
                     }
                 } else showAlertToEnableGPS();
 

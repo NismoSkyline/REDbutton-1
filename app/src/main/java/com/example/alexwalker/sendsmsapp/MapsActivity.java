@@ -22,7 +22,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
-    private ArrayList<EventCoordinates> eventCoordinatesArrayList;
+    private ArrayList<Events> eventsArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +35,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("Events");
-        eventCoordinatesArrayList = new ArrayList<>();
+        eventsArrayList = new ArrayList<>();
 
     }
 
@@ -61,11 +61,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         databaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                EventCoordinates eventCoordinates = dataSnapshot.getValue(EventCoordinates.class);
-                eventCoordinatesArrayList.add(eventCoordinates);
+                Events events = dataSnapshot.getValue(Events.class);
+                eventsArrayList.add(events);
                 LatLng eventLatLng = new LatLng(0, 0);
-                for(EventCoordinates coordinates : eventCoordinatesArrayList){
-                    eventLatLng = new LatLng(eventCoordinates.getLat(), eventCoordinates.getLng());
+                for(Events coordinates : eventsArrayList){
+                    eventLatLng = new LatLng(events.getLat(), events.getLng());
                     mMap.addMarker(new MarkerOptions().position(eventLatLng).title("Something happened here"));
                 }
 
