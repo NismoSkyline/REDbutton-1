@@ -47,20 +47,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         init();
-
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 0, locationListenerGPS);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 5, locationListenerGPS);
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getDataFromSharedPref();
+                getMessageDataFromSharedPref();
                 sendAlertMessage();
 
                 if (isLocationEnabled()) {
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         requestGPSPermission();
                     }else{
-                        //Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         EventCoordinates eventCoordinates = new EventCoordinates(latitudeGPS, longitudeGPS);
                         databaseReference.push().setValue(eventCoordinates);
                     }
@@ -84,13 +82,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //=======================
+    //SMS
+    //=======================
+    private void getMessageDataFromSharedPref() {
+        SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREF_FILE, MODE_PRIVATE);
+        firstPhoneNumber = preferences.getString(Constants.FIRST_NUMBER, "");
+        secondPhoneNumber = preferences.getString(Constants.SECOND_NUMBER, "");
+        message = preferences.getString(Constants.MESSAGE, "");
+        Log.v("data", firstPhoneNumber + "\n" + secondPhoneNumber + "\n" + message);
+    }
+
     private void sendAlertMessage() {
         if (isSMSPermissionGranted()) {
             requestSMSPermission();
         } else {
             try {
-                sendMessage(firstPhoneNumber, message);
-                sendMessage(secondPhoneNumber, message);
+                sendSMS(firstPhoneNumber, message);
+                sendSMS(secondPhoneNumber, message);
                 Toast.makeText(getApplicationContext(), "Sms sent", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "Sms fail. Please try again", Toast.LENGTH_LONG).show();
@@ -99,8 +108,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    private void sendSMS(String phoneNumber, String message) {
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+    }
 
 
+    //=====================
+    //Location
+    //=====================
     private boolean isLocationEnabled() {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
@@ -124,89 +140,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         dialog.show();
-    }
-
-
-    private void getDataFromSharedPref() {
-        SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREF_FILE, MODE_PRIVATE);
-        firstPhoneNumber = preferences.getString(Constants.FIRST_NUMBER, "");
-        secondPhoneNumber = preferences.getString(Constants.SECOND_NUMBER, "");
-        message = preferences.getString(Constants.MESSAGE, "");
-        Log.v("data", firstPhoneNumber + "\n" + secondPhoneNumber + "\n" + message);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_items, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-
-    }
-
-    private void requestSMSPermission() {
-        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 1);
-    }
-
-    private void requestGPSPermission(){
-        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
-    }
-
-    private boolean isSMSPermissionGranted() {
-        if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
-            return true;
-        }else return false;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    try {
-                        sendMessage(firstPhoneNumber, message);
-                        sendMessage(secondPhoneNumber, message);
-                        Toast.makeText(getApplicationContext(), "Sms sent", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "Sms fail. Please try again", Toast.LENGTH_LONG).show();
-                        Log.v("SMS", "sms failed: " + e);
-                        e.printStackTrace();
-                    }
-                }
-                break;
-            case 2:
-                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, locationListenerGPS);
-                }
-                break;
-        }
-    }
-
-
-    private void sendMessage(String phoneNumber, String message) {
-        SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(phoneNumber, null, message, null, null);
-    }
-
-    private void init() {
-        messageData = new MessageData();
-        sendButton = (Button) findViewById(R.id.redButton);
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("Events");
-        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        button = (Button)findViewById(R.id.button2);
-        textView = (TextView)findViewById(R.id.textView);
     }
 
     private LocationListener locationListenerGPS = new LocationListener() {
@@ -234,4 +167,78 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+
+
+
+    //================================
+    //permissions
+    //================================
+    private void requestSMSPermission() {
+        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, 1);
+    }
+    private void requestGPSPermission(){
+        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+    }
+    private boolean isSMSPermissionGranted() {
+        if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED){
+            return true;
+        }else return false;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1: //sms permission
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    try {
+                        sendSMS(firstPhoneNumber, message);
+                        sendSMS(secondPhoneNumber, message);
+                        Toast.makeText(getApplicationContext(), "Sms sent", Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), "Sms fail. Please try again", Toast.LENGTH_LONG).show();
+                        Log.v("SMS", "sms failed: " + e);
+                        e.printStackTrace();
+                    }
+                }
+                break;
+            case 2: //gps permission
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 5, locationListenerGPS);
+                }
+                break;
+        }
+    }
+
+
+    //============================
+    //menu button in action bar
+    //============================
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_items, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+
+    }
+
+    private void init() {
+        messageData = new MessageData();
+        sendButton = (Button) findViewById(R.id.redButton);
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference().child("Events");
+        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        button = (Button)findViewById(R.id.button2);
+        textView = (TextView)findViewById(R.id.textView);
+    }
 }
