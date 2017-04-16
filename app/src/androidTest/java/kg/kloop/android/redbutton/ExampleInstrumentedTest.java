@@ -1,4 +1,4 @@
-package com.example.alexwalker.sendsmsapp;
+package kg.kloop.android.redbutton;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

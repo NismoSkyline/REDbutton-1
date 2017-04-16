@@ -1,4 +1,4 @@
-package com.example.alexwalker.sendsmsapp;
+package kg.kloop.android.redbutton;
 
 import org.junit.Test;
 

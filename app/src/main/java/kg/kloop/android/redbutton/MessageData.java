@@ -1,4 +1,4 @@
-package com.example.alexwalker.sendsmsapp;
+package kg.kloop.android.redbutton;
 
 /**
  * Created by alexwalker on 15.04.17.
