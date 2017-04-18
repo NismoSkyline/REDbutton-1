@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void sendSMS(String phoneNumber, String message) {
         SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+        smsManager.sendTextMessage(phoneNumber, null, message + "\nhttp://maps.google.com/maps?q=" + latitudeGPS + "," + longitudeGPS, null, null);
     }
 
 
