@@ -62,7 +62,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         init();
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListenerGPS);
+        if (isLocationEnabled()) {
+            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListenerGPS);
+            }
+        } else showAlertToEnableGPS();
         auth = FirebaseAuth.getInstance();
         auth.addAuthStateListener(getAuthStateListener());
 
