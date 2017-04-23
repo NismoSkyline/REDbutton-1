@@ -85,6 +85,8 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SettingsActivity.this, UsersActivity.class);
+                intent.putExtra("currentUserID", userID);
+                intent.putExtra("currentUserName", userName);
                 startActivity(intent);
             }
         });
