@@ -70,8 +70,7 @@ public class SettingsActivity extends AppCompatActivity {
                 } else Toast.makeText(getApplicationContext(), "Save failed. Try again", Toast.LENGTH_LONG).show();
 
                 if(firebaseUser != null){
-                    databaseReference.child(userID).removeValue();
-                    databaseReference.child(userID).push().setValue(getUser());
+                    databaseReference.child(userID).setValue(getUser());
                 } else {
                     databaseReference.push().setValue(getUser());
                 }
