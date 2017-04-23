@@ -36,7 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
     private String userID;
     private String userName;
     private String userEmail;
-    private Users user;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,8 +113,8 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-    public Users getUser() {
-        user = new Users(userID, userName, userEmail,
+    public User getUser() {
+        user = new User(userID, userName, userEmail,
                 firstNumber, secondNumber, message);
         Log.v("User", "userDataFromSettingActivity: " + userID + "\n" + userName + "\n" + userEmail);
         return user;
@@ -135,8 +135,8 @@ public class SettingsActivity extends AppCompatActivity {
         preferences = getSharedPreferences(Constants.SHARED_PREF_FILE, MODE_PRIVATE);
         messageData = new MessageData();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("Users");
+        databaseReference = firebaseDatabase.getReference().child("User");
         auth = FirebaseAuth.getInstance();
-        user = new Users();
+        user = new User();
     }
 }

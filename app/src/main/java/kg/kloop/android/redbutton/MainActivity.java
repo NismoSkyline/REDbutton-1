@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem signOutMenuItem;
     private LocationManager locationManager;
     double latitudeGPS, longitudeGPS;
-    private Users user;
-    private Events events;
+    private User user;
+    private Event event;
     private Button button;
     private TextView textView;
     private TextView textView1;
@@ -82,10 +82,10 @@ public class MainActivity extends AppCompatActivity {
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         requestGPSPermission();
                     }else{
-                        user = new Users(user.getUserID(), user.getUserName(), user.getUserEmail(),
+                        user = new User(user.getUserID(), user.getUserName(), user.getUserEmail(),
                                 user.getFirstNumber(), user.getSecondNumber(), user.getMessage());
-                        events = new Events(latitudeGPS, longitudeGPS, user);
-                        databaseReference.push().setValue(events);
+                        event = new Event(latitudeGPS, longitudeGPS, user);
+                        databaseReference.push().setValue(event);
 
                     }
                 } else showAlertToEnableGPS();
@@ -334,10 +334,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         messageData = new MessageData();
-        user = new Users();
+        user = new User();
         sendButton = (Button) findViewById(R.id.redButton);
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("Events");
+        databaseReference = firebaseDatabase.getReference().child("Event");
         auth = FirebaseAuth.getInstance();
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         button = (Button)findViewById(R.id.button2);
