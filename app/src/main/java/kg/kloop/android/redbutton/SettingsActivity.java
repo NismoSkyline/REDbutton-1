@@ -27,7 +27,6 @@ public class SettingsActivity extends AppCompatActivity {
     private String secondNumber;
     private String message;
     private SharedPreferences preferences;
-    private MessageData messageData;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private FirebaseAuth auth;
@@ -45,9 +44,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         init();
         loadDataFromPref();
-        if(isPrefSaved()){
-            setData(firstNumber, secondNumber, message);
-        }
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -69,7 +65,6 @@ public class SettingsActivity extends AppCompatActivity {
                 message = messageEditText.getText().toString();
 
                 saveDataInPref(firstNumber, secondNumber, message);
-                //user.setMessageData(firstNumber, secondNumber, message);
                 if(isPrefSaved()){
                     Toast.makeText(getApplicationContext(), "Data saved", Toast.LENGTH_LONG).show();
                 } else Toast.makeText(getApplicationContext(), "Save failed. Try again", Toast.LENGTH_LONG).show();
@@ -93,10 +88,6 @@ public class SettingsActivity extends AppCompatActivity {
         editor.putString(Constants.SECOND_NUMBER, secondNumber);
         editor.putString(Constants.MESSAGE, message);
         editor.apply();
-    }
-
-    private void setData(String firstNumber, String secondNumber, String message) {
-        messageData.setData(firstNumber, secondNumber, message);
     }
 
 
@@ -139,7 +130,6 @@ public class SettingsActivity extends AppCompatActivity {
         messageEditText = (EditText)findViewById(R.id.messageEditText);
         saveSettingsButton = (Button)findViewById(R.id.saveSettingsButton);
         preferences = getSharedPreferences(Constants.SHARED_PREF_FILE, MODE_PRIVATE);
-        messageData = new MessageData();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("Users");
         auth = FirebaseAuth.getInstance();

@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private String firstPhoneNumber;
     private String secondPhoneNumber;
     private String message;
-    private MessageData messageData;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private FirebaseAuth auth;
@@ -333,7 +332,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
-        messageData = new MessageData();
         user = new User();
         sendButton = (Button) findViewById(R.id.redButton);
         firebaseDatabase = FirebaseDatabase.getInstance();
