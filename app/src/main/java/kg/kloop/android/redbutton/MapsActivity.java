@@ -24,6 +24,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private ArrayList<Event> eventArrayList;
+    private LatLng eventLatLng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +36,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("Event");
+        databaseReference = firebaseDatabase.getReference().child("Events");
         eventArrayList = new ArrayList<>();
 
     }
@@ -64,13 +65,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Event event = dataSnapshot.getValue(Event.class);
                 eventArrayList.add(event);
-                LatLng eventLatLng = new LatLng(0, 0);
                 for(Event coordinates : eventArrayList){
                     eventLatLng = new LatLng(event.getLat(), event.getLng());
-                    mMap.addMarker(new MarkerOptions().position(eventLatLng).title("Something happened here"));
+                    if(eventLatLng.latitude != 0 && eventLatLng.longitude != 0 ){
+                        mMap.addMarker(new MarkerOptions().position(eventLatLng).title("Something happened here"));
+                    }
+                }
+                if(eventLatLng.latitude != 0 && eventLatLng.longitude != 0 ){
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 17));
+                } else {
+                    LatLng almaty = new LatLng(43.250384, 76.911368);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(almaty, 13));
                 }
 
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 17));
             }
 
             @Override
