@@ -74,7 +74,13 @@ public class SettingsActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Data saved", Toast.LENGTH_LONG).show();
                 } else Toast.makeText(getApplicationContext(), "Save failed. Try again", Toast.LENGTH_LONG).show();
 
-                databaseReference.push().setValue(getUser());
+                if(firebaseUser != null){
+                    databaseReference.child(userID).removeValue();
+                    databaseReference.child(userID).push().setValue(getUser());
+                } else {
+                    databaseReference.push().setValue(getUser());
+                }
+
 
             }
         });
@@ -135,7 +141,7 @@ public class SettingsActivity extends AppCompatActivity {
         preferences = getSharedPreferences(Constants.SHARED_PREF_FILE, MODE_PRIVATE);
         messageData = new MessageData();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("User");
+        databaseReference = firebaseDatabase.getReference().child("Users");
         auth = FirebaseAuth.getInstance();
         user = new User();
     }

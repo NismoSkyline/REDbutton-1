@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
         user = new User();
         sendButton = (Button) findViewById(R.id.redButton);
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("Event");
+        databaseReference = firebaseDatabase.getReference().child("Events");
         auth = FirebaseAuth.getInstance();
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         button = (Button)findViewById(R.id.button2);
