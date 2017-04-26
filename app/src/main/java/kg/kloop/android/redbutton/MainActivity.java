@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
     private MenuItem signInMenuItem;
     private MenuItem signOutMenuItem;
+    private MenuItem groups;
     private LocationManager locationManager;
     double latitudeGPS, longitudeGPS;
     private User user;
@@ -158,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         smsManager.sendTextMessage(phoneNumber, null, message + "\nhttp://maps.google.com/maps?q=" + latitudeGPS + "," + longitudeGPS, null, null);
     }
 
-
     //=====================
     //Location
     //=====================
@@ -262,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_items, menu);
         signInMenuItem = menu.findItem(R.id.sign_in_item);
         signOutMenuItem = menu.findItem(R.id.sign_out_item);
+        groups = menu.findItem(R.id.groups);
         setAuthMenuItemsVisibility();
         return true;
     }
@@ -306,6 +307,10 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Your are logged out!", Toast.LENGTH_SHORT).show();
                 }
                 Log.v("Logout", "item pressed: " + item.getItemId() + "\n" + "should be:    " + R.id.sign_out_item);
+                break;
+
+            case R.id.groups:
+                startActivity(new Intent(MainActivity.this, Groups.class));
                 break;
 
         }
