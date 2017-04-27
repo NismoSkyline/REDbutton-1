@@ -6,4 +6,56 @@
     android:layout_height="match_parent"
     tools:context="kg.kloop.android.redbutton.Groups">
 
+    <Button
+        android:id="@+id/buttonPush"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="217dp"
+        android:text="Create new group"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="7dp"
+        android:layout_marginStart="217dp" />
+
+    <Button
+        android:id="@+id/buttonValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="setvalue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="7dp"
+        android:layout_marginLeft="31dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginStart="31dp" />
+
+    <ListView
+        android:id = "@+id/groupsListView"
+        android:layout_width="372dp"
+        android:layout_height="390dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/editGroupName"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"></ListView>
+
+    <EditText
+        android:id="@+id/editGroupName"
+        android:layout_width="339dp"
+        android:layout_height="39dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonPush"
+        app:layout_constraintHorizontal_bias="0.4"
+        tools:layout_editor_absoluteY="409dp"
+        tools:layout_editor_absoluteX="46dp" />
 </android.support.constraint.ConstraintLayout>
