@@ -42,8 +42,8 @@
         <activity
             android:name="kg.kloop.android.redbutton.MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name="kg.kloop.android.redbutton.Groups" />
-        <activity android:name="kg.kloop.android.redbutton.Approve"></activity>
+        <activity android:name="kg.kloop.android.redbutton.groups.GroupsList" />
+        <activity android:name="kg.kloop.android.redbutton.groups.Approve"></activity>
     </application>
 
 </manifest>

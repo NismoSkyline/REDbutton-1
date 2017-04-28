@@ -1,4 +1,4 @@
-package kg.kloop.android.redbutton;
+package kg.kloop.android.redbutton.groups;
 
 /**
  * Created by erlan on 28.04.2017.

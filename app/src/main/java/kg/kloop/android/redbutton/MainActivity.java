@@ -33,6 +33,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
 
+import kg.kloop.android.redbutton.groups.GroupsList;
+
 public class MainActivity extends AppCompatActivity {
 
     private Button sendButton;
@@ -311,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.groups:
-                startActivity(new Intent(MainActivity.this, Groups.class));
+                startActivity(new Intent(MainActivity.this, GroupsList.class));
                 break;
 
         }
@@ -342,7 +344,6 @@ public class MainActivity extends AppCompatActivity {
         sendButton = (Button) findViewById(R.id.redButton);
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("Events");
-        groupsReference = firebaseDatabase.getReference("Groups");
         auth = FirebaseAuth.getInstance();
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         button = (Button)findViewById(R.id.button2);

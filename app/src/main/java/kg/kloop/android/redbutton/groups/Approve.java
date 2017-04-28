@@ -1,4 +1,4 @@
-package kg.kloop.android.redbutton;
+package kg.kloop.android.redbutton.groups;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +9,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.alexwalker.sendsmsapp.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -17,6 +18,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class Approve extends AppCompatActivity {
@@ -53,7 +55,7 @@ public class Approve extends AppCompatActivity {
         ref = firebaseDatabase.getReference().child("Groups").child("secon2").child("requests");
 
         requests = new ArrayList<>();
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, requests);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, requests);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -68,7 +70,13 @@ public class Approve extends AppCompatActivity {
                         reqId = entry.getKey();
                         int newCount = req.getAgreeCount() + 1;
 
-                        ref.child(reqId).child("agreeCount").setValue(newCount);
+                        Map<String, Object> childUpdates = new HashMap<>();
+                        childUpdates.put("/"+reqId+"/agreeCount", newCount );
+                        childUpdates.put("/"+reqId + "/approved/"+ FirebaseAuth.getInstance().getCurrentUser().getUid(), true);
+
+                        ref.updateChildren(childUpdates);
+
+                        //ref.child(reqId).child("agreeCount").setValue(newCount);
                     }
                 }
 
