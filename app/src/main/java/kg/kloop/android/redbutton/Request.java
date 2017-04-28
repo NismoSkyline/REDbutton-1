@@ -7,18 +7,28 @@ package kg.kloop.android.redbutton;
 public class Request {
     private int agreeCount;
     private String userId;
+    private String userName;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     public Request(){
 
     }
 
-    public Request(String userId){
-        this(0, userId);
+    public Request(String userId, String userName){
+        this(0, userId, userName);
     }
 
-    public Request(int agreeCount, String userId) {
+    public Request(int agreeCount, String userId, String userName) {
         this.agreeCount = agreeCount;
         this.userId = userId;
+        this.userName = userName;
     }
 
     public int getAgreeCount() {

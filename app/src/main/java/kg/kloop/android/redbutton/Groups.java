@@ -1,5 +1,6 @@
 package kg.kloop.android.redbutton;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -58,8 +59,9 @@ public class Groups extends AppCompatActivity implements View.OnClickListener {
                 //Toast.makeText(Groups.this, ((TextView) view).getText().toString(), Toast.LENGTH_SHORT).show();
                 String groupName = ((TextView) view).getText().toString();
                 String Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
                 //Toast.makeText(Groups.this, Uid, Toast.LENGTH_SHORT).show();
-                Request request = new Request(Uid);
+                Request request = new Request(Uid, userName);
                 groupsReference.child(groupName).child("requests").push().setValue(request);
             }
         });
@@ -116,7 +118,7 @@ public class Groups extends AppCompatActivity implements View.OnClickListener {
 
                 break;
             case R.id.buttonValue:
-                groupsReference.setValue("setValue");
+                startActivity(new Intent(Groups.this, Approve.class));
                 break;
         }
     }
