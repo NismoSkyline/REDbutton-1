@@ -5,15 +5,22 @@ admin.initializeApp(functions.config().firebase);
 
 exports.checkRequestApprovements = functions.database.ref('/Groups/{group}/requests/{request}')
     .onWrite(event => {
-      // Grab the current value of what was written to the Realtime Database.
       const original = event.data.val();
-      i = original.agreeCount
-      if (i == 2) {
-        return event.data.ref.parent.parent.child('member').set(original.userName);
-      }
+      datakey = event.data.key;
 
-      // You must return a Promise when performing asynchronous tasks inside a Functions such as
-      // writing to the Firebase Realtime Database.
-      // Setting an "uppercase" sibling in the Realtime Database returns a Promise.
-      //return event.data.ref.parent.parent.child('member').set(original.userName);
+      i = original.agreeCount;
+      if (i == 2) {
+
+        var ref = event.data.ref.parent.parent;
+        var groupName = "someName"
+        ref.once("value")
+            .then(function(snapshot){
+            groupName = snapshot.child("name").val();
+
+                  const promise1 = event.data.ref.parent.parent.parent.parent.child('Users').child(original.userId).child('groups').child(groupName).set(true);
+                  const promise2 = event.data.ref.parent.parent.child('members').child(original.userId).set(true);
+                  return event.data.ref.parent.child(datakey).set(null);
+            });
+
+      }
     });

@@ -2,6 +2,7 @@ package kg.kloop.android.redbutton.groups;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,6 +31,7 @@ public class Approve extends AppCompatActivity {
     TextView info;
     String userIdForChange;
     String reqId;
+    private static final String TAG = "myLog";
 
     private HashMap<String, Request> requestsList;
 
@@ -52,10 +54,10 @@ public class Approve extends AppCompatActivity {
 
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        ref = firebaseDatabase.getReference().child("Groups").child("secon2").child("requests");
+        ref = firebaseDatabase.getReference().child("Groups").child("third").child("requests");
 
         requests = new ArrayList<>();
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, requests);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, requests);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -66,10 +68,12 @@ public class Approve extends AppCompatActivity {
                 for (HashMap.Entry<String, Request> entry: requestsList.entrySet()){
                     Request req = entry.getValue();
                     if (req.getUserName().equals(userName)){
+                        Log.d(TAG , "count : " + Integer.toString(req.getAgreeCount()));
                         userIdForChange = req.getUserId();
                         reqId = entry.getKey();
                         int newCount = req.getAgreeCount() + 1;
 
+                        Log.d(TAG, "new count: " + Integer.toString(newCount));
                         Map<String, Object> childUpdates = new HashMap<>();
                         childUpdates.put("/"+reqId+"/agreeCount", newCount );
                         childUpdates.put("/"+reqId + "/approved/"+ FirebaseAuth.getInstance().getCurrentUser().getUid(), true);
