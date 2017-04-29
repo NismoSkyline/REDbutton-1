@@ -18,7 +18,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class GroupsList extends AppCompatActivity implements View.OnClickListener {
     private Button createGroup, setvalueButton;
@@ -64,11 +66,37 @@ public class GroupsList extends AppCompatActivity implements View.OnClickListene
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                    GroupRoom group = postSnapshot.getValue(GroupRoom.class);
+                    Map<String, Object> objectMap = (HashMap<String, Object>)postSnapshot.getValue();
+
+
+                    String groupName = "";
+
+
+                    for (Map.Entry<String, Object> entry: objectMap.entrySet()){
+                        if (entry.getValue() instanceof String){
+                            if (entry.getKey().equals("name")){
+                                groupName =(String) entry.getValue();
+                            }
+                        }
+                    }
+
+//                    for (Object obj : objectMap.values()){
+//                        if (obj instanceof String){
+//                            String string = (String) obj;
+//
+//                            if (string.equals("name")) {
+//                                groupName = (String) obj;
+//                            }
+//                        }
+//                    }
+
+                    //GroupRoom group = postSnapshot.getValue(GroupRoom.class);
                     GroupMembership groupMembership = new GroupMembership();
-                    groupMembership.setGroupName(group.getName());
+                    //groupMembership.setGroupName(group.getName());
+                    groupMembership.setGroupName(groupName);
 
                     String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
                     Iterable data = postSnapshot.child("requests").getChildren();
                     Iterator i = data.iterator();
                     while (i.hasNext()){
@@ -76,6 +104,17 @@ public class GroupsList extends AppCompatActivity implements View.OnClickListene
                         Request r =  value.getValue(Request.class);
                         if (userId.equals(r.getUserId())){
                             groupMembership.setPending(true);
+                            break;
+                        }
+                    }
+
+                    Iterable members = postSnapshot.child("members").getChildren();
+                    Iterator memberIterator = members.iterator();
+                    while (memberIterator.hasNext()){
+                        DataSnapshot member = (DataSnapshot) memberIterator.next();
+                        if (userId.equals(member.getKey())){
+                            groupMembership.setMember(true);
+                            break;
                         }
                     }
 

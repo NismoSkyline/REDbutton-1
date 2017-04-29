@@ -10,16 +10,18 @@ public class GroupRoom {
     private String name;
     private String id;
 
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     private ArrayList<String> members;
     private ArrayList<String> requests;
+
+    public ArrayList<String> getRequests() {
+        return requests;
+    }
+
+    public void setRequests(ArrayList<String> requests) {
+        this.requests = requests;
+    }
 
     public GroupRoom(){
         this("");
@@ -30,6 +32,14 @@ public class GroupRoom {
         this.name = name;
         members = new ArrayList<>();
         requests = new ArrayList<>();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName(){
