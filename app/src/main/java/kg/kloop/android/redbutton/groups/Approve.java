@@ -54,7 +54,7 @@ public class Approve extends AppCompatActivity {
 
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        ref = firebaseDatabase.getReference().child("Groups").child("4groud").child("requests");
+        ref = firebaseDatabase.getReference().child("Groups").child("first").child("requests");
 
         requests = new ArrayList<>();
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, requests);

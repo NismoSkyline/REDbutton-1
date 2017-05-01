@@ -1,6 +1,7 @@
 package kg.kloop.android.redbutton.groups;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +21,14 @@ import java.util.ArrayList;
 public class GroupListAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<GroupMembership> groupList;
+    //private Tab1 fragment;
+    private Fragment fragment;
 
-    public GroupListAdapter (Context context, ArrayList<GroupMembership> list){
+    //public GroupListAdapter (Context context, ArrayList<GroupMembership> list, Tab1 tab1Fragment){
+    public GroupListAdapter (Context context, ArrayList<GroupMembership> list, Fragment fragment){
         this.context = context;
         this.groupList = list;
+        this.fragment = fragment;
     }
 
     @Override
@@ -73,9 +78,10 @@ public class GroupListAdapter extends BaseAdapter {
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (context instanceof  GroupsList){
+                //if (context instanceof  SlidingGroupsActivity){
+                if (fragment instanceof  Tab1){
                     if (!finalIsMember && !finalIsPending) {
-                        ((GroupsList) context).sendRequest(thisGroup.getGroupName());
+                        ((Tab1) fragment).sendRequest(thisGroup.getGroupName());
                         image.setImageResource(R.drawable.pending);
                         membershipInfo.setText("запрос отправлен");
                         Toast.makeText(context, "Request sended", Toast.LENGTH_SHORT).show();

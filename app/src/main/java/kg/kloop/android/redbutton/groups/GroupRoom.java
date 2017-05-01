@@ -14,7 +14,13 @@ public class GroupRoom {
     private int requiredAmountOfApprovals;
     Map <String, Boolean> moderators;
 
+    public int getRequiredAmountOfApprovals() {
+        return requiredAmountOfApprovals;
+    }
 
+    public void setRequiredAmountOfApprovals(int requiredAmountOfApprovals) {
+        this.requiredAmountOfApprovals = requiredAmountOfApprovals;
+    }
 
     private ArrayList<String> members;
     private ArrayList<String> requests;
