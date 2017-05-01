@@ -9,12 +9,12 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
@@ -33,7 +33,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
 
-import kg.kloop.android.redbutton.groups.GroupsList;
+import kg.kloop.android.redbutton.groups.SlidingGroupsActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -313,7 +313,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.groups:
-                startActivity(new Intent(MainActivity.this, GroupsList.class));
+                //startActivity(new Intent(MainActivity.this, GroupsList.class));
+                startActivity(new Intent(MainActivity.this, SlidingGroupsActivity.class));
                 break;
 
         }

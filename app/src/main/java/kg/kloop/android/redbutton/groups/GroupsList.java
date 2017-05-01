@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.alexwalker.sendsmsapp.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,7 +30,9 @@ public class GroupsList extends AppCompatActivity implements View.OnClickListene
     private DatabaseReference groupsReference;
     private ListView groupsList;
     private ArrayList<GroupMembership> groupMembershipList;
+    private ArrayList<String> groupNames;
     GroupListAdapter adapter2;
+    private String userId;
 
 
     @Override
@@ -39,12 +42,14 @@ public class GroupsList extends AppCompatActivity implements View.OnClickListene
         init();
 
         groupMembershipList = new ArrayList<>();
+        groupNames = new ArrayList<>();
 
         adapter2 = new GroupListAdapter(this, groupMembershipList);
         groupsList.setAdapter(adapter2);
     }
 
     private void init(){
+        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         createGroup = (Button) findViewById(R.id.buttonPush);
         createGroup.setOnClickListener(this);
         setvalueButton = (Button) findViewById(R.id.buttonValue);
@@ -68,59 +73,16 @@ public class GroupsList extends AppCompatActivity implements View.OnClickListene
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     Map<String, Object> objectMap = (HashMap<String, Object>)postSnapshot.getValue();
 
-
-                    String groupName = "";
-
-
-                    for (Map.Entry<String, Object> entry: objectMap.entrySet()){
-                        if (entry.getValue() instanceof String){
-                            if (entry.getKey().equals("name")){
-                                groupName =(String) entry.getValue();
-                            }
-                        }
-                    }
-
-//                    for (Object obj : objectMap.values()){
-//                        if (obj instanceof String){
-//                            String string = (String) obj;
-//
-//                            if (string.equals("name")) {
-//                                groupName = (String) obj;
-//                            }
-//                        }
-//                    }
-
-                    //GroupRoom group = postSnapshot.getValue(GroupRoom.class);
-                    GroupMembership groupMembership = new GroupMembership();
-                    //groupMembership.setGroupName(group.getName());
-                    groupMembership.setGroupName(groupName);
-
+                    String groupName = getNameFromMapObject(objectMap);
                     String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    GroupMembership groupMembership = new GroupMembership();
+                    groupMembership.setGroupName(groupName);
+                    groupMembership.setPending(isInPending(postSnapshot, userId));
+                    groupMembership.setMember(isInMembers(postSnapshot, userId));
 
-                    Iterable data = postSnapshot.child("requests").getChildren();
-                    Iterator i = data.iterator();
-                    while (i.hasNext()){
-                        DataSnapshot value = (DataSnapshot) i.next();
-                        Request r =  value.getValue(Request.class);
-                        if (userId.equals(r.getUserId())){
-                            groupMembership.setPending(true);
-                            break;
-                        }
-                    }
-
-                    Iterable members = postSnapshot.child("members").getChildren();
-                    Iterator memberIterator = members.iterator();
-                    while (memberIterator.hasNext()){
-                        DataSnapshot member = (DataSnapshot) memberIterator.next();
-                        if (userId.equals(member.getKey())){
-                            groupMembership.setMember(true);
-                            break;
-                        }
-                    }
-
+                    groupNames.add(groupName);
                     groupMembershipList.add(groupMembership);
                     adapter2.notifyDataSetChanged();
-
                 }
             }
 
@@ -130,50 +92,6 @@ public class GroupsList extends AppCompatActivity implements View.OnClickListene
             }
         });
 
-//        groupsReference.addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                GroupRoom group = dataSnapshot.getValue(GroupRoom.class);
-//
-//                GroupMembership groupMembership = new GroupMembership();
-//                groupMembership.setGroupName(group.getName());
-//
-//                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-//                Iterable data = dataSnapshot.child("requests").getChildren();
-//                Iterator i = data.iterator();
-//                while (i.hasNext()){
-//                    DataSnapshot value = (DataSnapshot) i.next();
-//                    Request r =  value.getValue(Request.class);
-//                    if (userId.equals(r.getUserId())){
-//                        groupMembership.setPending(true);
-//                    }
-//                }
-//
-//                groupMembershipList.add(groupMembership);
-//                adapter2.notifyDataSetChanged();
-//
-//            }
-//
-//            @Override
-//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
     }
 
      void sendRequest(String groupName){
@@ -183,22 +101,81 @@ public class GroupsList extends AppCompatActivity implements View.OnClickListene
         groupsReference.child(groupName).child("requests").push().setValue(request);
     }
 
+    private String getNameFromMapObject(Map<String, Object> objectMap){
+        String groupName = "";
+
+        for (Map.Entry<String, Object> entry: objectMap.entrySet()){
+            if (entry.getValue() instanceof String){
+                if (entry.getKey().equals("name")){
+                    groupName =(String) entry.getValue();
+                }
+            }
+        }
+
+        return groupName;
+    }
+
+    private boolean isInPending(DataSnapshot postSnapshot, String userId){
+        boolean isPending = false;
+        Iterable requests = postSnapshot.child("requests").getChildren();
+        Iterator i = requests.iterator();
+        while (i.hasNext()){
+            DataSnapshot value = (DataSnapshot) i.next();
+            Request r =  value.getValue(Request.class);
+            if (userId.equals(r.getUserId())){
+                isPending = true;
+                break;
+            }
+        }
+
+        return isPending;
+    }
+
+    private boolean isInMembers(DataSnapshot postSnapshot, String userId){
+        boolean isMember = false;
+        Iterable members = postSnapshot.child("members").getChildren();
+        Iterator memberIterator = members.iterator();
+        while (memberIterator.hasNext()){
+            DataSnapshot member = (DataSnapshot) memberIterator.next();
+            if (userId.equals(member.getKey())){
+                isMember = true;
+                break;
+            }
+        }
+
+        return isMember;
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.buttonPush:
+                final String newGroupName = groupName.getText().toString();
+                DatabaseReference rr = FirebaseDatabase.getInstance().getReference().child("Groups").child(newGroupName);
 
-                //groupsReference.push().setValue("Pushed");
-                GroupRoom group = new GroupRoom(groupName.getText().toString());
-                //groupsReference.push().setValue(group);
-//                ArrayList<String> members = new ArrayList<>();
-//                members.add("user1");
-//                members.add("user2");
-//                group.setMembers(members);
-                //groupsReference.child(group.getName()).child("members").setValue(group.getMembers());
-                //String id = groupsReference.push().getKey();
-                //group.setId(id);
-                groupsReference.child(group.getName()).setValue(group);
+                rr.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()){
+                            Toast.makeText(GroupsList.this, "Это имя группы уже занято", Toast.LENGTH_SHORT).show();
+                        } else {
+                            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                            GroupRoom group = new GroupRoom(newGroupName, userId);
+                            groupsReference.child(newGroupName).setValue(group);
+                            Map<String, Object> childUpdates = new HashMap<>();
+                            childUpdates.put("/Groups/" + newGroupName, group);
+                            childUpdates.put("/Users/" + userId + "/pending/" + newGroupName, true);
+                            mDatabase.updateChildren(childUpdates);
+
+                            Toast.makeText(GroupsList.this, "Группа создана", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
                 break;
             case R.id.buttonValue:

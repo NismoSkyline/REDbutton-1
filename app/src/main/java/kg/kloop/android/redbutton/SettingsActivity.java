@@ -75,8 +75,6 @@ public class SettingsActivity extends AppCompatActivity {
                 } else {
                     databaseReference.push().setValue(getUser());
                 }
-
-
             }
         });
 
