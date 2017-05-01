@@ -78,7 +78,7 @@ public class GroupListAdapter extends BaseAdapter {
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //if (context instanceof  SlidingGroupsActivity){
+                //if clicked on Tab1
                 if (fragment instanceof  Tab1){
                     if (!finalIsMember && !finalIsPending) {
                         ((Tab1) fragment).sendRequest(thisGroup.getGroupName());
@@ -87,6 +87,9 @@ public class GroupListAdapter extends BaseAdapter {
                         Toast.makeText(context, "Request sended", Toast.LENGTH_SHORT).show();
                     }
                 }
+
+                //if clicked on Tab2
+
             }
         });
 
