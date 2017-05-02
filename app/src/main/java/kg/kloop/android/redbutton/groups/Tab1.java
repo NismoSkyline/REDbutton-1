@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.alexwalker.sendsmsapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,13 +29,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Tab1 extends Fragment implements View.OnClickListener {
+    private static final String TAG = "Tab1 log";
     private Button createGroup, setvalueButton;
     private EditText groupName;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference groupsReference;
     private ListView groupsList;
     private ArrayList<GroupMembership> groupMembershipList;
-    private ArrayList<String> groupNames;
     GroupListAdapter adapter2;
     private String userId;
     View v;
@@ -45,7 +47,6 @@ public class Tab1 extends Fragment implements View.OnClickListener {
 
         init();
         groupMembershipList = new ArrayList<>();
-        groupNames = new ArrayList<>();
 
         adapter2 = new GroupListAdapter(v.getContext(), groupMembershipList, Tab1.this);
         groupsList.setAdapter(adapter2);
@@ -77,24 +78,53 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         firebaseDatabase = FirebaseDatabase.getInstance();
         groupsReference = firebaseDatabase.getReference("Groups");
 
-        groupsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+//        groupsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+//                    Map<String, Object> objectMap = (HashMap<String, Object>)postSnapshot.getValue();
+//
+//                    String groupName = getNameFromMapObject(objectMap);
+//                    String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//                    GroupMembership groupMembership = new GroupMembership();
+//                    groupMembership.setGroupName(groupName);
+//                    groupMembership.setPending(isInPending(postSnapshot, userId));
+//                    groupMembership.setMember(isInMembers(postSnapshot, userId));
+//
+//                    groupMembershipList.add(groupMembership);
+//                    adapter2.notifyDataSetChanged();
+//                    //Toast.makeText(v.getContext(), groupName, Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+
+        groupsReference.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                    Map<String, Object> objectMap = (HashMap<String, Object>)postSnapshot.getValue();
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                updateListOnChildAddedOrChildChanged(dataSnapshot);
+            }
 
-                    String groupName = getNameFromMapObject(objectMap);
-                    String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                    GroupMembership groupMembership = new GroupMembership();
-                    groupMembership.setGroupName(groupName);
-                    groupMembership.setPending(isInPending(postSnapshot, userId));
-                    groupMembership.setMember(isInMembers(postSnapshot, userId));
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "Child changed");
+                updateListOnChildAddedOrChildChanged(dataSnapshot);
 
-                    groupNames.add(groupName);
-                    groupMembershipList.add(groupMembership);
-                    adapter2.notifyDataSetChanged();
-                    //Toast.makeText(v.getContext(), groupName, Toast.LENGTH_SHORT).show();
-                }
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
             }
 
             @Override
@@ -102,6 +132,7 @@ public class Tab1 extends Fragment implements View.OnClickListener {
 
             }
         });
+
 
     }
 
@@ -163,6 +194,32 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         return isMember;
     }
 
+    private void updateListOnChildAddedOrChildChanged(DataSnapshot dataSnapshot){
+        Map<String, Object> objectMap = (HashMap<String, Object>)dataSnapshot.getValue();
+
+        String groupName = dataSnapshot.getKey();
+        GroupMembership groupMembership = new GroupMembership();
+        groupMembership.setGroupName(groupName);
+        groupMembership.setPending(isInPending(dataSnapshot, userId));
+        groupMembership.setMember(isInMembers(dataSnapshot, userId));
+
+        boolean flag = false;
+        for (GroupMembership gMembership: groupMembershipList){
+            if (gMembership.getGroupName().equals(groupName)){
+                //gMembership = groupMembership;
+                groupMembershipList.remove(gMembership);
+                groupMembershipList.add(groupMembership);
+                flag = true;
+                break;
+            }
+        }
+
+        if (!flag) {
+            groupMembershipList.add(groupMembership);
+        }
+        adapter2.notifyDataSetChanged();
+    }
+
     @Override
     public void onClick(final View v) {
         switch (v.getId()){
@@ -182,6 +239,13 @@ public class Tab1 extends Fragment implements View.OnClickListener {
                             childUpdates.put("/Groups/" + newGroupName, group);
                             childUpdates.put("/Users/" + userId + "/groups/" + newGroupName, true);
                             mDatabase.updateChildren(childUpdates);
+
+//                            GroupMembership groupMembership = new GroupMembership();
+//                            groupMembership.setGroupName(newGroupName);
+//                            groupMembership.setPending(false);
+//                            groupMembership.setMember(true);
+//                            groupMembershipList.add(groupMembership);
+//                            adapter2.notifyDataSetChanged();
 
                             Toast.makeText(v.getContext(), "Группа создана", Toast.LENGTH_SHORT).show();
                         }

@@ -20,8 +20,8 @@ public class SlidingGroupsActivity extends AppCompatActivity {
 
     ViewPager viewPager;
     ViewPagerAdapter pagerAdapter;
-    CharSequence titles[] = {"Группы", "Мои группы", "Tab 3"};
-    int numOfTabs = 3;
+    CharSequence titles[] = {"Группы", "Мои группы"};
+    int numOfTabs = 2;
     private DatabaseReference groupsReference;
     private DatabaseReference mDatabase;
     String userId;

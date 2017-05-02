@@ -1,6 +1,7 @@
 package kg.kloop.android.redbutton.groups;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +48,7 @@ public class GroupListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null){
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.group_list_item, parent, false);
@@ -75,6 +76,26 @@ public class GroupListAdapter extends BaseAdapter {
 
         final boolean finalIsPending = isPending;
         final boolean finalIsMember = isMember;
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //if clicked on Tab2
+                if (fragment instanceof Tab2) {
+                    GroupMembership group = groupList.get(position);
+                    if (group.isMember()) {
+                        String groupName = group.getGroupName();
+                        Intent i = new Intent(context, Approve.class);
+                        i.putExtra("groupName", groupName);
+                        context.startActivity(i);
+                    } else {
+                        Toast.makeText(context, "Ваша заявка еще на рассмотрении", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,13 +103,16 @@ public class GroupListAdapter extends BaseAdapter {
                 if (fragment instanceof  Tab1){
                     if (!finalIsMember && !finalIsPending) {
                         ((Tab1) fragment).sendRequest(thisGroup.getGroupName());
-                        image.setImageResource(R.drawable.pending);
-                        membershipInfo.setText("запрос отправлен");
+//                        image.setImageResource(R.drawable.pending);
+//                        membershipInfo.setText("запрос отправлен");
                         Toast.makeText(context, "Request sended", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 //if clicked on Tab2
+                if (fragment instanceof Tab2){
+
+                }
 
             }
         });

@@ -3,7 +3,6 @@ package kg.kloop.android.redbutton.groups;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,15 +10,13 @@ import android.widget.ListView;
 
 import com.example.alexwalker.sendsmsapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class Tab2 extends Fragment {
@@ -36,23 +33,25 @@ public class Tab2 extends Fragment {
         v =inflater.inflate(R.layout.fragment_tab2_my_groups,container,false);
         init();
 
-
-        //       DatabaseReference r2 = userGroupsReference.child("groups");
-//
-        userGroupsReference.child("groups").addListenerForSingleValueEvent(new ValueEventListener() {
+        userGroupsReference.child("groups").addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-//                Map<String, Boolean> groups = (HashMap<String, Boolean>) dataSnapshot.getValue();
-//                for (String groupname: groups.keySet()){
-//                    GroupMembership groupMembership = new GroupMembership(groupname, true, false);
-//                    myGroupsList.add(groupMembership);
-//                    Log.d(TAG, "in the loop");
-//                }
-//                Log.d(TAG, "In list there are: " + Integer.toString(myGroupsList.size()));
-//
-//                adapter.notifyDataSetChanged();
-//                Log.d(TAG, "In adapter, count: " + Integer.toString(adapter.getCount()));
-                updateList(dataSnapshot, true);
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                updateListOnChildAdded(dataSnapshot, true);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                updateListOnChildRemoved(dataSnapshot);
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
             }
 
@@ -62,10 +61,25 @@ public class Tab2 extends Fragment {
             }
         });
 
-        userGroupsReference.child("pending").addListenerForSingleValueEvent(new ValueEventListener() {
+        userGroupsReference.child("pending").addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                updateList(dataSnapshot, false);
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                updateListOnChildAdded(dataSnapshot, false);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                updateListOnChildRemoved(dataSnapshot);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
             }
 
             @Override
@@ -87,18 +101,22 @@ public class Tab2 extends Fragment {
         mygroupsListview.setAdapter(adapter);
     }
 
-    private void updateList(DataSnapshot dataSnapshot, boolean isMember){
-        Map<String, Boolean> groups = (HashMap<String, Boolean>) dataSnapshot.getValue();
-        if (groups != null) {
-            for (String groupname : groups.keySet()) {
-                GroupMembership groupMembership = new GroupMembership(groupname, isMember, !isMember);
-                myGroupsList.add(groupMembership);
-                Log.d(TAG, "in the loop");
-            }
-            Log.d(TAG, "In list there are: " + Integer.toString(myGroupsList.size()));
+    private void updateListOnChildAdded(DataSnapshot dataSnapshot, boolean isMember){
+        String groupname = dataSnapshot.getKey();
+        GroupMembership groupMembership = new GroupMembership(groupname, isMember, !isMember);
+        myGroupsList.add(groupMembership);
+        adapter.notifyDataSetChanged();
+    }
 
-            adapter.notifyDataSetChanged();
-            Log.d(TAG, "In adapter, count: " + Integer.toString(adapter.getCount()));
+    private void updateListOnChildRemoved(DataSnapshot dataSnapshot){
+        String groupName = dataSnapshot.getKey();
+        for (GroupMembership groupMembership: myGroupsList){
+            if (groupMembership.getGroupName().equals(groupName)){
+                myGroupsList.remove(groupMembership);
+
+                break;
+            }
         }
+        adapter.notifyDataSetChanged();
     }
 }
