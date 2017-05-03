@@ -1,18 +1,24 @@
 package kg.kloop.android.redbutton.groups;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.RadioButton;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.alexwalker.sendsmsapp.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,7 +27,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -119,6 +124,7 @@ public class Tab1 extends Fragment implements View.OnClickListener {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+                updateListonChildRemoved(dataSnapshot);
 
             }
 
@@ -195,8 +201,6 @@ public class Tab1 extends Fragment implements View.OnClickListener {
     }
 
     private void updateListOnChildAddedOrChildChanged(DataSnapshot dataSnapshot){
-        Map<String, Object> objectMap = (HashMap<String, Object>)dataSnapshot.getValue();
-
         String groupName = dataSnapshot.getKey();
         GroupMembership groupMembership = new GroupMembership();
         groupMembership.setGroupName(groupName);
@@ -220,25 +224,42 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         adapter2.notifyDataSetChanged();
     }
 
+    private void updateListonChildRemoved(DataSnapshot dataSnapshot){
+        String groupName = dataSnapshot.getKey();
+        for (GroupMembership groupMembership: groupMembershipList){
+            if (groupMembership.getGroupName().equals(groupName)){
+                groupMembershipList.remove(groupMembership);
+                break;
+            }
+        }
+        adapter2.notifyDataSetChanged();
+    }
+
     @Override
     public void onClick(final View v) {
         switch (v.getId()){
             case R.id.buttonPush:
-                final String newGroupName = groupName.getText().toString();
+
+                /*
+                final String newGroupName = groupName.getText().toString().trim();
                 DatabaseReference rr = FirebaseDatabase.getInstance().getReference().child("Groups").child(newGroupName);
 
-                rr.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()){
-                            Toast.makeText(v.getContext(), "Это имя группы уже занято", Toast.LENGTH_SHORT).show();
-                        } else {
-                            GroupRoom group = new GroupRoom(newGroupName, userId);
-                            groupsReference.child(newGroupName).setValue(group);
-                            Map<String, Object> childUpdates = new HashMap<>();
-                            childUpdates.put("/Groups/" + newGroupName, group);
-                            childUpdates.put("/Users/" + userId + "/groups/" + newGroupName, true);
-                            mDatabase.updateChildren(childUpdates);
+                if (newGroupName.isEmpty() || newGroupName.trim().isEmpty()){
+                    Toast.makeText(v.getContext(), "Имя группы не может быть пустым", Toast.LENGTH_SHORT).show();
+                } else {
+                    rr.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            if (dataSnapshot.exists()) {
+                                Toast.makeText(v.getContext(), "Это имя группы уже занято", Toast.LENGTH_SHORT).show();
+                            } else {
+                                GroupRoom group = new GroupRoom(newGroupName, userId);
+                                groupsReference.child(newGroupName).setValue(group);
+                                Map<String, Object> childUpdates = new HashMap<>();
+                                childUpdates.put("/Groups/" + newGroupName, group);
+                                childUpdates.put("/Users/" + userId + "/groups/" + newGroupName, true);
+                                mDatabase.updateChildren(childUpdates);
 
 //                            GroupMembership groupMembership = new GroupMembership();
 //                            groupMembership.setGroupName(newGroupName);
@@ -247,20 +268,100 @@ public class Tab1 extends Fragment implements View.OnClickListener {
 //                            groupMembershipList.add(groupMembership);
 //                            adapter2.notifyDataSetChanged();
 
-                            Toast.makeText(v.getContext(), "Группа создана", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(v.getContext(), "Группа создана", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });
+                        }
+                    });
+                }
 
+                break;
+                */
+                createNewGroupAlertDiaolog();
                 break;
             case R.id.buttonValue:
                 startActivity(new Intent(v.getContext(), Approve.class));
                 break;
         }
+    }
+
+    private void createNewGroupAlertDiaolog(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View dialog =inflater.inflate(R.layout.new_group_dialog, null);
+        builder.setView(dialog);
+        builder.setTitle("Настройки группы");
+        final EditText groupName;
+        final RadioButton radioButtonOnlyModerator;
+        final RadioButton radioButtonModeratorAndUsers;
+        final Spinner spinner;
+        final TextView requiredCount;
+
+        groupName = (EditText) dialog.findViewById(R.id.dialog_groupname);
+        requiredCount = (TextView) dialog.findViewById(R.id.dialog_required_count);
+        radioButtonOnlyModerator = (RadioButton) dialog.findViewById(R.id.dialog_radio_only_moderator);
+        radioButtonModeratorAndUsers = (RadioButton) dialog.findViewById(R.id.dialog_radio_moderaotr_and_users);
+        spinner = (Spinner) dialog.findViewById(R.id.dialog_spinner);
+        spinner.setEnabled(false);
+        requiredCount.setVisibility(View.INVISIBLE);
+        spinner.setVisibility(View.INVISIBLE);
+        String[] requiredCounts = {"2", "3", "4", "5", "6", "7"};
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(v.getContext(), android.R.layout.simple_spinner_item, requiredCounts);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        builder.setPositiveButton("Создать группу", null);
+        builder.setNegativeButton("Отмена", null);
+        radioButtonOnlyModerator.setChecked(true);
+        radioButtonModeratorAndUsers.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+
+                    spinner.setEnabled(true);
+                    requiredCount.setVisibility(View.VISIBLE);
+                    spinner.setVisibility(View.VISIBLE);
+                } else {
+                    spinner.setEnabled(false);
+                    requiredCount.setVisibility(View.INVISIBLE);
+                    spinner.setVisibility(View.INVISIBLE);
+
+                }
+
+            }
+        });
+
+        radioButtonOnlyModerator.setChecked(true);
+
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialog) {
+
+                Button buttonPositive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                Button buttonNegative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                buttonPositive.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        //  alertDialog.dismiss();
+                    }
+                });
+
+                buttonNegative.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertDialog.dismiss();
+                    }
+                });
+            }
+        });
+        alertDialog.show();
     }
 }

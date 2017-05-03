@@ -17,6 +17,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.Map;
 public class Approve extends AppCompatActivity {
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference ref;
+    private DatabaseReference groupModeratorsRef;
     private ListView listView;
     private ArrayList<String> requests;
     ArrayAdapter<String> adapter;
@@ -33,6 +35,8 @@ public class Approve extends AppCompatActivity {
     String userIdForChange;
     String reqId;
     String groupName;
+    String userId;
+    boolean isModerator;
     private static final String TAG = "myLog";
 
     private HashMap<String, Request> requestsList;
@@ -49,6 +53,8 @@ public class Approve extends AppCompatActivity {
     }
 
     private void init(){
+        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        isModerator = false;
         groupName = getIntent().getStringExtra("groupName");
 
         info = (TextView) findViewById(R.id.infotext);
@@ -56,10 +62,9 @@ public class Approve extends AppCompatActivity {
 
         requestsList = new HashMap<>();
 
-
-
         firebaseDatabase = FirebaseDatabase.getInstance();
         ref = firebaseDatabase.getReference().child("Groups").child(groupName).child("requests");
+        groupModeratorsRef = firebaseDatabase.getReference().child("Groups").child(groupName).child("moderators");
 
         requests = new ArrayList<>();
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, requests);
@@ -84,10 +89,8 @@ public class Approve extends AppCompatActivity {
                         childUpdates.put("/"+reqId + "/approved/"+ FirebaseAuth.getInstance().getCurrentUser().getUid(), true);
                         ref.updateChildren(childUpdates);
                         Toast.makeText(Approve.this, "Вы одобрили заявку", Toast.LENGTH_SHORT).show();
-
                     }
                 }
-
             }
         });
 
@@ -131,6 +134,24 @@ public class Approve extends AppCompatActivity {
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        groupModeratorsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()){
+                    if (postSnapshot.getKey().equals(userId)){
+                        isModerator = true;
+                        info.append("\nВы модератор в этой группе\n");
+                        break;
+                    }
+                }
             }
 
             @Override
