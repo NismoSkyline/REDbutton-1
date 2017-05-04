@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.alexwalker.sendsmsapp.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,6 +28,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,7 +126,7 @@ public class Tab1 extends Fragment implements View.OnClickListener {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                updateListonChildRemoved(dataSnapshot);
+                updateListOnChildRemoved(dataSnapshot);
 
             }
 
@@ -224,7 +226,7 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         adapter2.notifyDataSetChanged();
     }
 
-    private void updateListonChildRemoved(DataSnapshot dataSnapshot){
+    private void updateListOnChildRemoved(DataSnapshot dataSnapshot){
         String groupName = dataSnapshot.getKey();
         for (GroupMembership groupMembership: groupMembershipList){
             if (groupMembership.getGroupName().equals(groupName)){
@@ -239,49 +241,7 @@ public class Tab1 extends Fragment implements View.OnClickListener {
     public void onClick(final View v) {
         switch (v.getId()){
             case R.id.buttonPush:
-
-                /*
-                final String newGroupName = groupName.getText().toString().trim();
-                DatabaseReference rr = FirebaseDatabase.getInstance().getReference().child("Groups").child(newGroupName);
-
-                if (newGroupName.isEmpty() || newGroupName.trim().isEmpty()){
-                    Toast.makeText(v.getContext(), "Имя группы не может быть пустым", Toast.LENGTH_SHORT).show();
-                } else {
-                    rr.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-                            if (dataSnapshot.exists()) {
-                                Toast.makeText(v.getContext(), "Это имя группы уже занято", Toast.LENGTH_SHORT).show();
-                            } else {
-                                GroupRoom group = new GroupRoom(newGroupName, userId);
-                                groupsReference.child(newGroupName).setValue(group);
-                                Map<String, Object> childUpdates = new HashMap<>();
-                                childUpdates.put("/Groups/" + newGroupName, group);
-                                childUpdates.put("/Users/" + userId + "/groups/" + newGroupName, true);
-                                mDatabase.updateChildren(childUpdates);
-
-//                            GroupMembership groupMembership = new GroupMembership();
-//                            groupMembership.setGroupName(newGroupName);
-//                            groupMembership.setPending(false);
-//                            groupMembership.setMember(true);
-//                            groupMembershipList.add(groupMembership);
-//                            adapter2.notifyDataSetChanged();
-
-                                Toast.makeText(v.getContext(), "Группа создана", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-
-                break;
-                */
-                createNewGroupAlertDiaolog();
+                createNewGroupAlertDialog();
                 break;
             case R.id.buttonValue:
                 startActivity(new Intent(v.getContext(), Approve.class));
@@ -289,20 +249,20 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void createNewGroupAlertDiaolog(){
+    private void createNewGroupAlertDialog(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialog =inflater.inflate(R.layout.new_group_dialog, null);
         builder.setView(dialog);
         builder.setTitle("Настройки группы");
-        final EditText groupName;
+        final EditText newGroupName;
         final RadioButton radioButtonOnlyModerator;
         final RadioButton radioButtonModeratorAndUsers;
         final Spinner spinner;
         final TextView requiredCount;
 
-        groupName = (EditText) dialog.findViewById(R.id.dialog_groupname);
+        newGroupName = (EditText) dialog.findViewById(R.id.dialog_groupname);
         requiredCount = (TextView) dialog.findViewById(R.id.dialog_required_count);
         radioButtonOnlyModerator = (RadioButton) dialog.findViewById(R.id.dialog_radio_only_moderator);
         radioButtonModeratorAndUsers = (RadioButton) dialog.findViewById(R.id.dialog_radio_moderaotr_and_users);
@@ -322,7 +282,7 @@ public class Tab1 extends Fragment implements View.OnClickListener {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
-
+                    //only moderator can add new users
                     spinner.setEnabled(true);
                     requiredCount.setVisibility(View.VISIBLE);
                     spinner.setVisibility(View.VISIBLE);
@@ -330,9 +290,7 @@ public class Tab1 extends Fragment implements View.OnClickListener {
                     spinner.setEnabled(false);
                     requiredCount.setVisibility(View.INVISIBLE);
                     spinner.setVisibility(View.INVISIBLE);
-
                 }
-
             }
         });
 
@@ -350,7 +308,34 @@ public class Tab1 extends Fragment implements View.OnClickListener {
 
                     @Override
                     public void onClick(View view) {
-                        //  alertDialog.dismiss();
+                        final String groupName = newGroupName.getText().toString().trim();
+                        if (groupName.isEmpty()){
+                            Toast.makeText(v.getContext(), "Название группы не может быть пустым", Toast.LENGTH_SHORT).show();
+                        } else {
+                            //check this groupName in firebase Database, create group if this name is available
+                            groupsReference.child(groupName).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()){
+                                        //other group with this groupname already exists in firebase database
+                                        Toast.makeText(v.getContext(), "Такое название группы уже занято", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        //groupName is available, create new group
+                                        boolean onlyModeratorCanApproveRequests = radioButtonOnlyModerator.isChecked();
+                                        int requiredAmountOfApproves = Integer.parseInt(spinner.getSelectedItem().toString());
+                                        GroupRoom group = new GroupRoom(groupName, userId, requiredAmountOfApproves ,onlyModeratorCanApproveRequests);
+                                        groupsReference.child(groupName).setValue(group);
+                                        Toast.makeText(v.getContext(), "Группа создана", Toast.LENGTH_SHORT).show();
+                                        alertDialog.dismiss();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    Toast.makeText(v.getContext(), "Ошибка доступа к базе данных", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                     }
                 });
 

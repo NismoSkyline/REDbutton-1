@@ -113,7 +113,6 @@ public class GroupListAdapter extends BaseAdapter {
                 if (fragment instanceof Tab2){
 
                 }
-
             }
         });
 
