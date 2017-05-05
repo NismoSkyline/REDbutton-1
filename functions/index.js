@@ -5,23 +5,52 @@ admin.initializeApp(functions.config().firebase);
 
 exports.checkRequestApprovements = functions.database.ref('/Groups/{group}/requests/{request}')
     .onWrite(event => {
+
         const request = event.data.val();
-        const requestKey = event.data.key;
-        var approvementsCount = request.agreeCount;
-        if (approvementsCount == 2) {
-            var ref = event.data.ref.parent.parent;
-            var groupName = ""
-            return ref.once("value")
+        const userId = event.data.key;
+        const groupName1 = event.data.ref.parent.parent.key;
+        const usersRef = event.data.adminRef.root.child('Users');
+
+        if (event.data.exists() && !event.data.previous.exists()) {
+            //new request was added, need to add groupName to user's pending branch
+            console.log("request added");
+            console.log(userId, groupName1);
+            return usersRef.child(userId).child('pending').child(groupName1).set(true);
+            //return event.data.ref.parent.parent.parent.parent.child('Users').child(userId).child('pending').child(groupName1).set(true);
+        }
+        else if (!event.data.exists() && event.data.previous.exists()) {
+            //request was deleted, need to delete groupName from user's pending branch
+            console.log("deleting group from user's pending branch");
+            console.log(userId, groupName1);
+            return usersRef.child(userId).child('pending').child(groupName1).set(null);
+            //return event.data.ref.parent.parent.parent.parent.child('Users').child('pending').child(groupName1).set(null);
+        } else {
+            //need to check request approvements
+            console.log("need to check request now");
+            var approvementsCount = request.agreeCount;
+            const groupRef = event.data.ref.parent.parent;
+
+            return groupRef.once("value")
                 .then(function(snapshot){
-                    groupName = snapshot.child("name").val();
-                }).then(() => {
-                    event.data.ref.parent.parent.parent.parent.child('Users').child(request.userId).child('pending').child(groupName).set(null);
-                }).then(() => {
-                    event.data.ref.parent.parent.child('members').child(request.userId).set(true);
-                }).then(() => {
-                    event.data.ref.parent.child(requestKey).set(null);
+                    const requiredAmountOfApprovals = snapshot.child("requiredAmountOfApprovals").val();
+
+                    if (approvementsCount == requiredAmountOfApprovals){
+                        //need to add user to members and delete request
+                        console.log('need to add user to members');
+                        return groupRef.child('members').child(userId).set(true)
+                                .then(() => {
+                                    console.log('user added to members, deleting request');
+                                    groupRef.child('requests').child(userId).set(null);
+                                    console.log('request deleted');
+                                });
+                    } else {
+                        //still not enough approvements
+                        console.log('still not enough approvements');
+                        return;
+                    }
                 });
-      }
+
+        }
     });
 
 exports.groupMemberListener = functions.database.ref('/Groups/{group}/members/{member}')

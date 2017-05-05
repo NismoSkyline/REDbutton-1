@@ -274,7 +274,8 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         spinner.setEnabled(false);
         requiredCount.setVisibility(View.INVISIBLE);
         spinner.setVisibility(View.INVISIBLE);
-        String[] requiredCounts = {"2", "3", "4", "5", "6", "7"};
+        //String[] requiredCounts = {"2", "3", "4", "5", "6", "7"};
+        String[] requiredCounts = {"1", "2", "3", "4", "5", "6", "7"};
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(v.getContext(), android.R.layout.simple_spinner_item, requiredCounts);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
