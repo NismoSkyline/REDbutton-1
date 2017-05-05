@@ -31,7 +31,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -149,12 +148,17 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         String Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
         Request request = new Request(Uid, userName);
-        String key = groupsReference.child(groupName).child("requests").push().getKey();
+
+        groupsReference.child(groupName).child("requests").child(userId).setValue(request);
+
+        //String key = groupsReference.child(groupName).child("requests").push().getKey();
         //groupsReference.child(groupName).child("requests").push().setValue(request);
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/Groups/" + groupName + "/requests/" + key, request);
-        childUpdates.put("/Users/" + userId + "/pending/" + groupName, true);
-        mDatabase.updateChildren(childUpdates);
+
+
+//        Map<String, Object> childUpdates = new HashMap<>();
+//        childUpdates.put("/Groups/" + groupName + "/requests/" + key, request);
+        //childUpdates.put("/Users/" + userId + "/pending/" + groupName, true);
+       // mDatabase.updateChildren(childUpdates);
     }
 
     private String getNameFromMapObject(Map<String, Object> objectMap){
