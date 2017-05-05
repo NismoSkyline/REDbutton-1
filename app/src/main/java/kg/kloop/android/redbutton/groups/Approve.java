@@ -78,16 +78,9 @@ public class Approve extends AppCompatActivity {
                 for (HashMap.Entry<String, Request> entry: requestsList.entrySet()){
                     Request req = entry.getValue();
                     if (req.getUserName().equals(userName)){
-                        Log.d(TAG , "count : " + Integer.toString(req.getAgreeCount()));
                         userIdForChange = req.getUserId();
                         reqId = entry.getKey();
-                        int newCount = req.getAgreeCount() + 1;
-
-                        Log.d(TAG, "new count: " + Integer.toString(newCount));
-                        Map<String, Object> childUpdates = new HashMap<>();
-                        childUpdates.put("/"+reqId+"/agreeCount", newCount );
-                        childUpdates.put("/"+reqId + "/approved/"+ FirebaseAuth.getInstance().getCurrentUser().getUid(), true);
-                        ref.updateChildren(childUpdates);
+                        ref.child(reqId).child("approved").child(userId).setValue(true);
                         Toast.makeText(Approve.this, "Вы одобрили заявку", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -98,9 +91,6 @@ public class Approve extends AppCompatActivity {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Request request = dataSnapshot.getValue(Request.class);
-//                info.setText("");
-//                info.append("key: " + dataSnapshot.getKey() + "\n");
-//                info .append("userId: " + request.getUserId() + "\n");
 
                 if (!isRequestAlreadyApproved(dataSnapshot)) {
 

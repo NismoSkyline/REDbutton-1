@@ -34,7 +34,7 @@ exports.checkRequestApprovements = functions.database.ref('/Groups/{group}/reque
                 .then(function(snapshot){
                     const requiredAmountOfApprovals = snapshot.child("requiredAmountOfApprovals").val();
 
-                    if (approvementsCount == requiredAmountOfApprovals){
+                    if (approvementsCount >= requiredAmountOfApprovals){
                         //need to add user to members and delete request
                         console.log('need to add user to members');
                         return groupRef.child('members').child(userId).set(true)
@@ -70,4 +70,24 @@ exports.groupMemberListener = functions.database.ref('/Groups/{group}/members/{m
         } else {
             return;
         }
+    });
+
+exports.countApprovements= functions.database.ref('Groups/{group}/requests/{request}/approved/{userId}')
+    .onWrite( event => {
+        console.log("countApprovements triggered");
+        const countRef = event.data.ref.parent.parent.child('agreeCount');
+
+        return countRef.transaction(current => {
+            if (event.data.exists() && !event.data.previous.exists()) {
+                console.log("need to increase the number of approvements");
+                return (current || 0) + 1;
+            }
+            else if (!event.data.exists() && event.data.previous.exists()) {
+                console.log("need to reduce the number of approvements");
+                return (current || 0) - 1;
+            }
+          }).then(() => {
+            console.log('Counter updated.');
+          });
+
     });
