@@ -42,7 +42,11 @@
         <activity
             android:name="kg.kloop.android.redbutton.MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name="kg.kloop.android.redbutton.UsersActivity"></activity>
+        <activity android:name="kg.kloop.android.redbutton.UsersActivity" />
+
+        <service
+            android:name="kg.kloop.android.redbutton.LocationIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
