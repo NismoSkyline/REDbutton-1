@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem signInMenuItem;
     private MenuItem signOutMenuItem;
     private LocationManager locationManager;
-    double latitudeGPS, longitudeGPS;
     private User user;
     private Event event;
     private Button button;
@@ -83,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                     }else{
                         user = new User(user.getUserID(), user.getUserName(), user.getUserEmail(),
                                 user.getFirstNumber(), user.getSecondNumber(), user.getMessage());
-                        event = new Event(latitudeGPS, longitudeGPS, user);
+                        event = new Event(event.getLat(), event.getLng(), user);
                         databaseReference.push().setValue(event);
 
                     }
@@ -155,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void sendSMS(String phoneNumber, String message) {
         SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(phoneNumber, null, message + "\nhttp://maps.google.com/maps?q=" + latitudeGPS + "," + longitudeGPS, null, null);
+        smsManager.sendTextMessage(phoneNumber, null, message + "\nhttp://maps.google.com/maps?q=" + event.getLat() + "," + event.getLng(), null, null);
     }
 
 
@@ -190,10 +189,10 @@ public class MainActivity extends AppCompatActivity {
     private LocationListener locationListenerGPS = new LocationListener() {
         public void onLocationChanged(Location location) {
             if(location.getLatitude() != 0 && location.getLongitude() != 0){
-                longitudeGPS = location.getLongitude();
-                latitudeGPS = location.getLatitude();
+                event.setLng(location.getLongitude());
+                event.setLat(location.getLatitude());
             }
-            textView.setText("lat: " + latitudeGPS + "\n" + "lng: " + longitudeGPS);
+            textView.setText("lat: " + event.getLat() + "\n" + "lng: " + event.getLng());
 
         }
 
@@ -333,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         user = new User();
+        event = new Event();
         sendButton = (Button) findViewById(R.id.redButton);
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("Events");
