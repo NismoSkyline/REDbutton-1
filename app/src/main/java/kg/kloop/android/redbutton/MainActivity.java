@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private User user;
     private Event event;
     private Button button;
+    private ProgressBar progressBar;
     private TextView textView;
     private TextView textView1;
     private static final int RC_SIGN_IN = 10;
@@ -204,6 +206,9 @@ public class MainActivity extends AppCompatActivity {
                 event.setLng(location.getLongitude());
                 event.setLat(location.getLatitude());
             }
+            if(event.getLat() == 0 && event.getLng() == 0){
+                progressBar.setVisibility(View.VISIBLE);
+            } else progressBar.setVisibility(View.GONE);
             textView.setText("lat: " + event.getLat() + "\n" + "lng: " + event.getLng());
 
         }
@@ -372,6 +377,7 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         button = (Button)findViewById(R.id.button2);
+        progressBar = (ProgressBar)findViewById(R.id.progressBar);
         textView = (TextView)findViewById(R.id.textView);
         textView1 = (TextView)findViewById(R.id.textView2);
     }
