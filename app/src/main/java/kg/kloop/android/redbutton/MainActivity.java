@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView textView1;
     private static final int RC_SIGN_IN = 10;
     private EventStateReceiver eventStateReceiver;
-    private LatLng coordinates;
+    private CustomLatLng coordinates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,8 +169,8 @@ public class MainActivity extends AppCompatActivity {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNumber, null, message
                 + "\nhttp://maps.google.com/maps?q="
-                + event.getCoordinates().latitude
-                + "," + event.getCoordinates().longitude, null, null);
+                + event.getCoordinates().getLat()
+                + "," + event.getCoordinates().getLng(), null, null);
     }
 
 
@@ -205,13 +205,13 @@ public class MainActivity extends AppCompatActivity {
     private LocationListener locationListenerGPS = new LocationListener() {
         public void onLocationChanged(Location location) {
             if(location.getLatitude() != 0 && location.getLongitude() != 0){
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                CustomLatLng latLng = new CustomLatLng(location.getLatitude(), location.getLongitude());
                 event.setCoordinates(latLng);
             }
-            if(event.getCoordinates().latitude == 0 && event.getCoordinates().longitude == 0){
+            if(event.getCoordinates().getLat() == 0 && event.getCoordinates().getLng() == 0){
                 progressBar.setVisibility(View.VISIBLE);
             } else progressBar.setVisibility(View.GONE);
-            textView.setText("lat: " + event.getCoordinates().latitude + "\n" + "lng: " + event.getCoordinates().longitude);
+            textView.setText("lat: " + event.getCoordinates().getLat() + "\n" + "lng: " + event.getCoordinates().getLng());
 
         }
 
@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             try{
-                LatLng latLng = new LatLng(intent.getDoubleExtra(Constants.EVENT_LAT, 0),
+                CustomLatLng latLng = new CustomLatLng(intent.getDoubleExtra(Constants.EVENT_LAT, 0),
                         intent.getDoubleExtra(Constants.EVENT_LNG, 0));
                 event.setCoordinates(latLng);
             } catch (Exception e){

@@ -8,12 +8,12 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Event {
     private User user;
-    private LatLng coordinates;
+    private CustomLatLng coordinates;
 
     public Event() {
     }
 
-    public Event(LatLng coordinates, User user) {
+    public Event(CustomLatLng coordinates, User user) {
         this.coordinates = coordinates;
         this.user = user;
     }
@@ -26,11 +26,11 @@ public class Event {
         this.user = user;
     }
 
-    public LatLng getCoordinates() {
+    public CustomLatLng getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(LatLng coordinates) {
+    public void setCoordinates(CustomLatLng coordinates) {
         this.coordinates = coordinates;
     }
 }

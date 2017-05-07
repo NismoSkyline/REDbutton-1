@@ -66,7 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Event event = dataSnapshot.getValue(Event.class);
                 eventArrayList.add(event);
                 for(Event singleEvent : eventArrayList){
-                    eventLatLng = singleEvent.getCoordinates();
+                    eventLatLng = new LatLng(singleEvent.getCoordinates().getLat(), singleEvent.getCoordinates().getLng());
                     if(eventLatLng != null){
                         mMap.addMarker(new MarkerOptions().position(eventLatLng).title(event.getUser().getMessage()));
                     }

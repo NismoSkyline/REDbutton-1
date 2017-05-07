@@ -72,8 +72,8 @@ public class LocationService extends Service {
     private void sendDataBack() {
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION);
         if(event.getCoordinates() != null) {
-            localIntent.putExtra(Constants.EVENT_LAT, event.getCoordinates().latitude);
-            localIntent.putExtra(Constants.EVENT_LNG, event.getCoordinates().longitude);
+            localIntent.putExtra(Constants.EVENT_LAT, event.getCoordinates().getLat());
+            localIntent.putExtra(Constants.EVENT_LNG, event.getCoordinates().getLng());
         }
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
     }
@@ -84,7 +84,7 @@ public class LocationService extends Service {
             public void onLocationChanged(Location location) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 if(event.getCoordinates() != null) {
-                    Log.v("service", "Location: " + event.getCoordinates().latitude + " " + event.getCoordinates().longitude);
+                    Log.v("service", "Location: " + event.getCoordinates().getLat() + " " + event.getCoordinates().getLng());
                 }
                 databaseReference.child(childKey).child("coordinates").setValue(latLng);
                 sendNotification();
@@ -113,7 +113,7 @@ public class LocationService extends Service {
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle("Coordinates")
-                    .setContentText("lat: " + event.getCoordinates().latitude + "\n" + "lng: " + event.getCoordinates().longitude);
+                    .setContentText("lat: " + event.getCoordinates().getLat() + "\n" + "lng: " + event.getCoordinates().getLng());
             int notificationID = 001;
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             notificationManager.notify(notificationID, notificationBuilder.build());
