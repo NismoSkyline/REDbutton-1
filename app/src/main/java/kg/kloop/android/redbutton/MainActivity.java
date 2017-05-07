@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.example.alexwalker.sendsmsapp.R;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView textView1;
     private static final int RC_SIGN_IN = 10;
     private EventStateReceiver eventStateReceiver;
+    private LatLng coordinates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,10 +88,11 @@ public class MainActivity extends AppCompatActivity {
                     }else{
                         user = new User(user.getUserID(), user.getUserName(), user.getUserEmail(),
                                 user.getFirstNumber(), user.getSecondNumber(), user.getMessage());
-                        event = new Event(event.getLat(), event.getLng(), user);
+                        coordinates = event.getCoordinates();
+                        event = new Event(coordinates, user);
                         String childUniqueKey = databaseReference.push().getKey();
                         databaseReference.child(childUniqueKey).setValue(event);
-                        if(event.getLat() == 0 && event.getLng() == 0){
+                        if(event.getCoordinates().latitude == 0 && event.getCoordinates().longitude == 0){
                             initReceiver();
                             Intent serviceIntent = new Intent(MainActivity.this, LocationService.class);
                             serviceIntent.putExtra(Constants.DATABASE_CHILD_ID, childUniqueKey);
@@ -164,7 +167,10 @@ public class MainActivity extends AppCompatActivity {
     }
     private void sendSMS(String phoneNumber, String message) {
         SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(phoneNumber, null, message + "\nhttp://maps.google.com/maps?q=" + event.getLat() + "," + event.getLng(), null, null);
+        smsManager.sendTextMessage(phoneNumber, null, message
+                + "\nhttp://maps.google.com/maps?q="
+                + event.getCoordinates().latitude
+                + "," + event.getCoordinates().longitude, null, null);
     }
 
 
@@ -199,13 +205,13 @@ public class MainActivity extends AppCompatActivity {
     private LocationListener locationListenerGPS = new LocationListener() {
         public void onLocationChanged(Location location) {
             if(location.getLatitude() != 0 && location.getLongitude() != 0){
-                event.setLng(location.getLongitude());
-                event.setLat(location.getLatitude());
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                event.setCoordinates(latLng);
             }
-            if(event.getLat() == 0 && event.getLng() == 0){
+            if(event.getCoordinates().latitude == 0 && event.getCoordinates().longitude == 0){
                 progressBar.setVisibility(View.VISIBLE);
             } else progressBar.setVisibility(View.GONE);
-            textView.setText("lat: " + event.getLat() + "\n" + "lng: " + event.getLng());
+            textView.setText("lat: " + event.getCoordinates().latitude + "\n" + "lng: " + event.getCoordinates().longitude);
 
         }
 
@@ -350,9 +356,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             try{
-                event.setLat(intent.getDoubleExtra(Constants.EVENT_LAT, 0));
-                event.setLng(intent.getDoubleExtra(Constants.EVENT_LNG, 0));
-                //textView.setText("lat: " + event.getLat() + "\n" + "lng: " + event.getLng());
+                LatLng latLng = new LatLng(intent.getDoubleExtra(Constants.EVENT_LAT, 0),
+                        intent.getDoubleExtra(Constants.EVENT_LNG, 0));
+                event.setCoordinates(latLng);
             } catch (Exception e){
                 e.printStackTrace();
             }

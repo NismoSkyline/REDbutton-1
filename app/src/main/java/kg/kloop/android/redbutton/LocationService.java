@@ -23,6 +23,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.alexwalker.sendsmsapp.R;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -70,8 +71,8 @@ public class LocationService extends Service {
 
     private void sendDataBack() {
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION);
-        localIntent.putExtra(Constants.EVENT_LAT, event.getLat());
-        localIntent.putExtra(Constants.EVENT_LNG, event.getLng());
+        localIntent.putExtra(Constants.EVENT_LAT, event.getCoordinates().latitude);
+        localIntent.putExtra(Constants.EVENT_LNG, event.getCoordinates().longitude);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
     }
 
@@ -79,9 +80,9 @@ public class LocationService extends Service {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                event.setLng(location.getLongitude());
-                event.setLat(location.getLatitude());
-                Log.v("service", "Location: " + event.getLat() + " " + event.getLng());
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                event.setCoordinates(latLng);
+                Log.v("service", "Location: " + event.getCoordinates().latitude + " " + event.getCoordinates().longitude);
                 databaseReference.child(childKey).setValue(event);
                 sendNotification();
             }
@@ -108,7 +109,7 @@ public class LocationService extends Service {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Coordinates")
-                .setContentText("lat: " + event.getLat() + "\n" + "lng: " + event.getLng());
+                .setContentText("lat: " + event.getCoordinates().latitude + "\n" + "lng: " + event.getCoordinates().longitude);
         int notificationID = 001;
         NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(notificationID, notificationBuilder.build());

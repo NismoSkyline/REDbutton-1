@@ -13,6 +13,11 @@ public class Event {
     public Event() {
     }
 
+    public Event(LatLng coordinates, User user) {
+        this.coordinates = coordinates;
+        this.user = user;
+    }
+
     public User getUser() {
         return user;
     }
