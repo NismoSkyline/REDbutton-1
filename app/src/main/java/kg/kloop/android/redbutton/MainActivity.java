@@ -15,6 +15,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -74,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         auth.addAuthStateListener(getAuthStateListener());
 
+        initReceiver();
+        Intent serviceIntent = new Intent(MainActivity.this, LocationIntentService.class);
+        startService(serviceIntent);
+
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,11 +93,11 @@ public class MainActivity extends AppCompatActivity {
                                 user.getFirstNumber(), user.getSecondNumber(), user.getMessage());
                         event = new Event(event.getLat(), event.getLng(), user);
                         databaseReference.push().setValue(event);
-                        if(event.getLat() == 0 && event.getLng() == 0){
+                        /*if(event.getLat() == 0 && event.getLng() == 0){
                             initReceiver();
                             Intent serviceIntent = new Intent(MainActivity.this, LocationIntentService.class);
                             startService(serviceIntent);
-                        }
+                        }*/
 
                     }
                 } else showAlertToEnableGPS();
@@ -338,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class EventStateReceiver extends BroadcastReceiver{
+    private class EventStateReceiver extends WakefulBroadcastReceiver{
 
         private EventStateReceiver(){
 

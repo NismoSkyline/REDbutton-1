@@ -12,7 +12,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -35,6 +37,11 @@ public class LocationIntentService extends IntentService {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                Intent localIntent = new Intent(Constants.BROADCAST_ACTION);
+                localIntent.putExtra(Constants.EVENT_LAT, event.getLat());
+                localIntent.putExtra(Constants.EVENT_LNG, event.getLng());
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
+
                 event.setLng(location.getLongitude());
                 event.setLat(location.getLatitude());
                 Log.v("service", "Location: " + event.getLat() + " " + event.getLng());
@@ -59,10 +66,6 @@ public class LocationIntentService extends IntentService {
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, locationListener);
         }
-        Intent localIntent = new Intent(Constants.BROADCAST_ACTION);
-        localIntent.putExtra(Constants.EVENT_LAT, event.getLat());
-        localIntent.putExtra(Constants.EVENT_LNG, event.getLng());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
-
+        WakefulBroadcastReceiver.completeWakefulIntent(intent);
     }
 }
