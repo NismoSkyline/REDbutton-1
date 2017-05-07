@@ -356,9 +356,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             try{
-                CustomLatLng latLng = new CustomLatLng(intent.getDoubleExtra(Constants.EVENT_LAT, 0),
+                CustomLatLng customLatLng = new CustomLatLng(intent.getDoubleExtra(Constants.EVENT_LAT, 0),
                         intent.getDoubleExtra(Constants.EVENT_LNG, 0));
-                event.setCoordinates(latLng);
+                event.setCoordinates(customLatLng);
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -375,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-       // if(eventStateReceiver != null) unregisterReceiver(eventStateReceiver);
+        //if(eventStateReceiver != null) unregisterReceiver(eventStateReceiver);
         super.onDestroy();
     }
 

@@ -67,9 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 eventArrayList.add(event);
                 for(Event singleEvent : eventArrayList){
                     eventLatLng = new LatLng(singleEvent.getCoordinates().getLat(), singleEvent.getCoordinates().getLng());
-                    if(eventLatLng != null){
-                        mMap.addMarker(new MarkerOptions().position(eventLatLng).title(event.getUser().getMessage()));
-                    }
+                    mMap.addMarker(new MarkerOptions().position(eventLatLng).title(event.getUser().getMessage()));
                 }
                 if(eventLatLng != null){
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(eventLatLng, 17));

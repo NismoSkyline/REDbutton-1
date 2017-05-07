@@ -82,11 +82,11 @@ public class LocationService extends Service {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                CustomLatLng customLatLng = new CustomLatLng(location.getLatitude(), location.getLongitude());
                 if(event.getCoordinates() != null) {
                     Log.v("service", "Location: " + event.getCoordinates().getLat() + " " + event.getCoordinates().getLng());
                 }
-                databaseReference.child(childKey).child("coordinates").setValue(latLng);
+                databaseReference.child(childKey).child("coordinates").setValue(customLatLng);
                 sendNotification();
             }
 
