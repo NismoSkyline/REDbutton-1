@@ -12,4 +12,5 @@ public class Constants {
     public static final String BROADCAST_ACTION = "kg.kloop.android.redbutton.BROADCAST";
     public static final String EVENT_LAT = "eventLat";
     public static final String EVENT_LNG = "eventLng";
+    public static final String DATABASE_CHILD_ID = "databaseChildId";
 }

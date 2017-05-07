@@ -87,10 +87,12 @@ public class MainActivity extends AppCompatActivity {
                         user = new User(user.getUserID(), user.getUserName(), user.getUserEmail(),
                                 user.getFirstNumber(), user.getSecondNumber(), user.getMessage());
                         event = new Event(event.getLat(), event.getLng(), user);
-                        databaseReference.push().setValue(event);
+                        String childUniqueKey = databaseReference.push().getKey();
+                        databaseReference.child(childUniqueKey).setValue(event);
                         if(event.getLat() == 0 && event.getLng() == 0){
                             initReceiver();
                             Intent serviceIntent = new Intent(MainActivity.this, LocationService.class);
+                            serviceIntent.putExtra(Constants.DATABASE_CHILD_ID, childUniqueKey);
                             startService(serviceIntent);
                         }
 

@@ -33,6 +33,9 @@ public class LocationService extends Service {
     Event event;
     LocationListener locationListener;
     LocationManager locationManager;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
+    String childKey;
 
     @Nullable
     @Override
@@ -43,6 +46,9 @@ public class LocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         event = new Event();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference("Events");
+        childKey = intent.getStringExtra(Constants.DATABASE_CHILD_ID);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         setLocationListener();
         requestLocationUpdates();
@@ -76,6 +82,7 @@ public class LocationService extends Service {
                 event.setLng(location.getLongitude());
                 event.setLat(location.getLatitude());
                 Log.v("service", "Location: " + event.getLat() + " " + event.getLng());
+                databaseReference.child(childKey).setValue(event);
                 sendNotification();
             }
 
