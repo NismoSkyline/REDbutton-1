@@ -1,7 +1,6 @@
 package kg.kloop.android.redbutton;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -75,10 +74,6 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         auth.addAuthStateListener(getAuthStateListener());
 
-        initReceiver();
-        Intent serviceIntent = new Intent(MainActivity.this, LocationIntentService.class);
-        startService(serviceIntent);
-
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,11 +88,11 @@ public class MainActivity extends AppCompatActivity {
                                 user.getFirstNumber(), user.getSecondNumber(), user.getMessage());
                         event = new Event(event.getLat(), event.getLng(), user);
                         databaseReference.push().setValue(event);
-                        /*if(event.getLat() == 0 && event.getLng() == 0){
+                        if(event.getLat() == 0 && event.getLng() == 0){
                             initReceiver();
-                            Intent serviceIntent = new Intent(MainActivity.this, LocationIntentService.class);
+                            Intent serviceIntent = new Intent(MainActivity.this, LocationService.class);
                             startService(serviceIntent);
-                        }*/
+                        }
 
                     }
                 } else showAlertToEnableGPS();
@@ -116,12 +111,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    private void initReceiver() {
-        eventStateReceiver = new EventStateReceiver();
-        IntentFilter intentFilter = new IntentFilter(Constants.BROADCAST_ACTION);
-        LocalBroadcastManager.getInstance(this).registerReceiver(eventStateReceiver, intentFilter);
     }
 
     private FirebaseAuth.AuthStateListener getAuthStateListener() {
@@ -343,27 +332,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class EventStateReceiver extends WakefulBroadcastReceiver{
+    //=================================
+    //Broadcast receiver for service
+    //=================================
+    private void initReceiver() {
+        eventStateReceiver = new EventStateReceiver();
+        IntentFilter intentFilter = new IntentFilter(Constants.BROADCAST_ACTION);
+        LocalBroadcastManager.getInstance(this).registerReceiver(eventStateReceiver, intentFilter);
+    }
 
+    private class EventStateReceiver extends WakefulBroadcastReceiver{
         private EventStateReceiver(){
 
         }
-
         @Override
         public void onReceive(Context context, Intent intent) {
             try{
-                event.setLat(Double.parseDouble(intent.getStringExtra(Constants.EVENT_LAT)));
-                event.setLng(Double.parseDouble(intent.getStringExtra(Constants.EVENT_LNG)));
-                textView.setText("lat: " + event.getLat() + "\n" + "lng: " + event.getLng());
-                databaseReference.push().setValue(event);
+                event.setLat(intent.getDoubleExtra(Constants.EVENT_LAT, 0));
+                event.setLng(intent.getDoubleExtra(Constants.EVENT_LNG, 0));
+                //textView.setText("lat: " + event.getLat() + "\n" + "lng: " + event.getLng());
             } catch (Exception e){
                 e.printStackTrace();
             }
-
-
         }
     }
-
 
     @Override
     protected void onStop() {
@@ -371,6 +363,12 @@ public class MainActivity extends AppCompatActivity {
             auth.removeAuthStateListener(authStateListener);
         }
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+       // if(eventStateReceiver != null) unregisterReceiver(eventStateReceiver);
+        super.onDestroy();
     }
 
     private void init() {
