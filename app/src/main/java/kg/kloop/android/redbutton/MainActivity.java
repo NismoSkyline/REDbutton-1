@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                         event = new Event(coordinates, user);
                         String childUniqueKey = databaseReference.push().getKey();
                         databaseReference.child(childUniqueKey).setValue(event);
-                        if(event.getCoordinates().latitude == 0 && event.getCoordinates().longitude == 0){
+                        if(event.getCoordinates() == null){
                             initReceiver();
                             Intent serviceIntent = new Intent(MainActivity.this, LocationService.class);
                             serviceIntent.putExtra(Constants.DATABASE_CHILD_ID, childUniqueKey);

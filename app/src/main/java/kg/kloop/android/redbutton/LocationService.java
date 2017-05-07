@@ -71,8 +71,10 @@ public class LocationService extends Service {
 
     private void sendDataBack() {
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION);
-        localIntent.putExtra(Constants.EVENT_LAT, event.getCoordinates().latitude);
-        localIntent.putExtra(Constants.EVENT_LNG, event.getCoordinates().longitude);
+        if(event.getCoordinates() != null) {
+            localIntent.putExtra(Constants.EVENT_LAT, event.getCoordinates().latitude);
+            localIntent.putExtra(Constants.EVENT_LNG, event.getCoordinates().longitude);
+        }
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
     }
 
@@ -81,9 +83,8 @@ public class LocationService extends Service {
             @Override
             public void onLocationChanged(Location location) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                event.setCoordinates(latLng);
                 Log.v("service", "Location: " + event.getCoordinates().latitude + " " + event.getCoordinates().longitude);
-                databaseReference.child(childKey).setValue(event);
+                databaseReference.child(childKey).child("coordinates").setValue(latLng);
                 sendNotification();
             }
 
