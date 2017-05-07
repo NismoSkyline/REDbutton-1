@@ -63,8 +63,8 @@ public class Approve extends AppCompatActivity {
         requestsList = new HashMap<>();
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        ref = firebaseDatabase.getReference().child("Groups").child(groupName).child("requests");
-        groupModeratorsRef = firebaseDatabase.getReference().child("Groups").child(groupName).child("moderators");
+        ref = firebaseDatabase.getReference().child(GroupDefaults.groupsBranch).child(groupName).child(GroupDefaults.requestsChild);
+        groupModeratorsRef = firebaseDatabase.getReference().child(GroupDefaults.groupsBranch).child(groupName).child(GroupDefaults.moderatorsChild);
 
         requests = new ArrayList<>();
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, requests);
@@ -80,7 +80,7 @@ public class Approve extends AppCompatActivity {
                     if (req.getUserName().equals(userName)){
                         userIdForChange = req.getUserId();
                         reqId = entry.getKey();
-                        ref.child(reqId).child("approved").child(userId).setValue(true);
+                        ref.child(reqId).child(GroupDefaults.approvedChild).child(userId).setValue(true);
                         Toast.makeText(Approve.this, "Вы одобрили заявку", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -156,7 +156,7 @@ public class Approve extends AppCompatActivity {
         boolean isAlreadyApproved = false;
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         for (DataSnapshot child: dataSnapshot.getChildren()){
-            if (child.getKey().equals("approved")){
+            if (child.getKey().equals(GroupDefaults.approvedChild)){
                 //Map of users who approved this request
                 Map<String, Boolean> users = (HashMap<String, Boolean>) child.getValue();
                 //Looking for current user's Id in users

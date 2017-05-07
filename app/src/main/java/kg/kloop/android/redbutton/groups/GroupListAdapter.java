@@ -1,6 +1,8 @@
 package kg.kloop.android.redbutton.groups;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -22,10 +24,8 @@ import java.util.ArrayList;
 public class GroupListAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<GroupMembership> groupList;
-    //private Tab1 fragment;
     private Fragment fragment;
 
-    //public GroupListAdapter (Context context, ArrayList<GroupMembership> list, Tab1 tab1Fragment){
     public GroupListAdapter (Context context, ArrayList<GroupMembership> list, Fragment fragment){
         this.context = context;
         this.groupList = list;
@@ -102,10 +102,7 @@ public class GroupListAdapter extends BaseAdapter {
                 //if clicked on Tab1
                 if (fragment instanceof  Tab1){
                     if (!finalIsMember && !finalIsPending) {
-                        ((Tab1) fragment).sendRequest(thisGroup.getGroupName());
-//                        image.setImageResource(R.drawable.pending);
-//                        membershipInfo.setText("запрос отправлен");
-                        Toast.makeText(context, "Request sended", Toast.LENGTH_SHORT).show();
+                        createSendRequestAlertDialog(context, fragment, thisGroup);
                     }
                 }
 
@@ -117,5 +114,25 @@ public class GroupListAdapter extends BaseAdapter {
         });
 
         return convertView;
+    }
+
+    private void createSendRequestAlertDialog(Context context, final Fragment fragment, final GroupMembership groupMembership){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage("Отправить запрос в группу " + groupMembership.getGroupName() + "?" );
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ((Tab1) fragment).sendRequest(groupMembership.getGroupName());
+            }
+        });
+        builder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        AlertDialog alertdialog = builder.create();
+        alertdialog.show();
     }
 }

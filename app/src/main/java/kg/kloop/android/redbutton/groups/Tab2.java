@@ -33,7 +33,7 @@ public class Tab2 extends Fragment {
         v =inflater.inflate(R.layout.fragment_tab2_my_groups,container,false);
         init();
 
-        userGroupsReference.child("groups").addChildEventListener(new ChildEventListener() {
+        userGroupsReference.child(GroupDefaults.usersGroupsChild).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 updateListOnChildAdded(dataSnapshot, true);
@@ -61,7 +61,7 @@ public class Tab2 extends Fragment {
             }
         });
 
-        userGroupsReference.child("pending").addChildEventListener(new ChildEventListener() {
+        userGroupsReference.child(GroupDefaults.usersPendingChild).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 updateListOnChildAdded(dataSnapshot, false);
@@ -94,7 +94,7 @@ public class Tab2 extends Fragment {
 
     private void init(){
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        userGroupsReference = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+        userGroupsReference = FirebaseDatabase.getInstance().getReference(GroupDefaults.usersBranch).child(userId);
         myGroupsList = new ArrayList<>();
         mygroupsListview = (ListView) v.findViewById(R.id.mygroupsListview);
         adapter = new GroupListAdapter(v.getContext(), myGroupsList, Tab2.this );

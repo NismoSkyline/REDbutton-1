@@ -32,7 +32,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 
 public class Tab1 extends Fragment implements View.OnClickListener {
     private static final String TAG = "Tab1 log";
@@ -57,9 +56,6 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         adapter2 = new GroupListAdapter(v.getContext(), groupMembershipList, Tab1.this);
         groupsList.setAdapter(adapter2);
 
-
-
-
         return v;
     }
 
@@ -82,32 +78,7 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         });
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        groupsReference = firebaseDatabase.getReference("Groups");
-
-//        groupsReference.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-//                    Map<String, Object> objectMap = (HashMap<String, Object>)postSnapshot.getValue();
-//
-//                    String groupName = getNameFromMapObject(objectMap);
-//                    String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-//                    GroupMembership groupMembership = new GroupMembership();
-//                    groupMembership.setGroupName(groupName);
-//                    groupMembership.setPending(isInPending(postSnapshot, userId));
-//                    groupMembership.setMember(isInMembers(postSnapshot, userId));
-//
-//                    groupMembershipList.add(groupMembership);
-//                    adapter2.notifyDataSetChanged();
-//                    //Toast.makeText(v.getContext(), groupName, Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
+        groupsReference = firebaseDatabase.getReference(GroupDefaults.groupsBranch);
 
         groupsReference.addChildEventListener(new ChildEventListener() {
             @Override
@@ -126,7 +97,6 @@ public class Tab1 extends Fragment implements View.OnClickListener {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 updateListOnChildRemoved(dataSnapshot);
-
             }
 
             @Override
@@ -149,35 +119,13 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
         Request request = new Request(Uid, userName);
 
-        groupsReference.child(groupName).child("requests").child(userId).setValue(request);
-
-        //String key = groupsReference.child(groupName).child("requests").push().getKey();
-        //groupsReference.child(groupName).child("requests").push().setValue(request);
-
-
-//        Map<String, Object> childUpdates = new HashMap<>();
-//        childUpdates.put("/Groups/" + groupName + "/requests/" + key, request);
-        //childUpdates.put("/Users/" + userId + "/pending/" + groupName, true);
-       // mDatabase.updateChildren(childUpdates);
-    }
-
-    private String getNameFromMapObject(Map<String, Object> objectMap){
-        String groupName = "";
-
-        for (Map.Entry<String, Object> entry: objectMap.entrySet()){
-            if (entry.getValue() instanceof String){
-                if (entry.getKey().equals("name")){
-                    groupName =(String) entry.getValue();
-                }
-            }
-        }
-
-        return groupName;
+        groupsReference.child(groupName).child(GroupDefaults.requestsChild).child(userId).setValue(request);
+        Toast.makeText(v.getContext(), "Запрос отправлен", Toast.LENGTH_SHORT).show();
     }
 
     private boolean isInPending(DataSnapshot postSnapshot, String userId){
         boolean isPending = false;
-        Iterable requests = postSnapshot.child("requests").getChildren();
+        Iterable requests = postSnapshot.child(GroupDefaults.requestsChild).getChildren();
         Iterator i = requests.iterator();
         while (i.hasNext()){
             DataSnapshot value = (DataSnapshot) i.next();
@@ -193,7 +141,7 @@ public class Tab1 extends Fragment implements View.OnClickListener {
 
     private boolean isInMembers(DataSnapshot postSnapshot, String userId){
         boolean isMember = false;
-        Iterable members = postSnapshot.child("members").getChildren();
+        Iterable members = postSnapshot.child(GroupDefaults.membersChild).getChildren();
         Iterator memberIterator = members.iterator();
         while (memberIterator.hasNext()){
             DataSnapshot member = (DataSnapshot) memberIterator.next();
@@ -216,7 +164,6 @@ public class Tab1 extends Fragment implements View.OnClickListener {
         boolean flag = false;
         for (GroupMembership gMembership: groupMembershipList){
             if (gMembership.getGroupName().equals(groupName)){
-                //gMembership = groupMembership;
                 groupMembershipList.remove(gMembership);
                 groupMembershipList.add(groupMembership);
                 flag = true;

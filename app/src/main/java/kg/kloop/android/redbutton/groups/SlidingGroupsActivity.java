@@ -8,13 +8,7 @@ import android.support.v7.widget.Toolbar;
 
 import com.example.alexwalker.sendsmsapp.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.HashMap;
-import java.util.Map;
-
-//import android.widget.TableLayout;
 
 public class SlidingGroupsActivity extends AppCompatActivity {
 
@@ -22,8 +16,6 @@ public class SlidingGroupsActivity extends AppCompatActivity {
     ViewPagerAdapter pagerAdapter;
     CharSequence titles[] = {"Группы", "Мои группы"};
     int numOfTabs = 2;
-    private DatabaseReference groupsReference;
-    private DatabaseReference mDatabase;
     String userId;
 
 
@@ -41,20 +33,5 @@ public class SlidingGroupsActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
-
-        groupsReference = FirebaseDatabase.getInstance().getReference("Groups");
-
     }
-
-    void sendRequest(String groupName){
-        String Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-        Request request = new Request(Uid, userName);
-        String key = groupsReference.child(groupName).child("requests").push().getKey();
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/Groups/" + groupName + "/requests/" + key, request);
-        childUpdates.put("/Users/" + userId + "/pending/" + groupName, true);
-        mDatabase.updateChildren(childUpdates);
-    }
-
 }
