@@ -83,7 +83,9 @@ public class LocationService extends Service {
             @Override
             public void onLocationChanged(Location location) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                Log.v("service", "Location: " + event.getCoordinates().latitude + " " + event.getCoordinates().longitude);
+                if(event.getCoordinates() != null) {
+                    Log.v("service", "Location: " + event.getCoordinates().latitude + " " + event.getCoordinates().longitude);
+                }
                 databaseReference.child(childKey).child("coordinates").setValue(latLng);
                 sendNotification();
             }
@@ -107,13 +109,15 @@ public class LocationService extends Service {
     }
 
     private void sendNotification() {
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Coordinates")
-                .setContentText("lat: " + event.getCoordinates().latitude + "\n" + "lng: " + event.getCoordinates().longitude);
-        int notificationID = 001;
-        NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(notificationID, notificationBuilder.build());
+        if(event.getCoordinates() != null) {
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("Coordinates")
+                    .setContentText("lat: " + event.getCoordinates().latitude + "\n" + "lng: " + event.getCoordinates().longitude);
+            int notificationID = 001;
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.notify(notificationID, notificationBuilder.build());
+        }
     }
 
 }
