@@ -3,7 +3,6 @@ package kg.kloop.android.redbutton.groups;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +15,6 @@ import android.widget.Toast;
 import com.example.alexwalker.sendsmsapp.R;
 
 import java.util.ArrayList;
-
-/**
- * Created by erlan on 28.04.2017.
- */
 
 public class GroupListAdapter extends BaseAdapter {
     private Context context;
@@ -84,11 +79,25 @@ public class GroupListAdapter extends BaseAdapter {
                 //if clicked on Tab2
                 if (fragment instanceof Tab2) {
                     GroupMembership group = groupList.get(position);
+
+                    // если является членом группы
                     if (group.isMember()) {
-                        String groupName = group.getGroupName();
-                        Intent i = new Intent(context, Approve.class);
-                        i.putExtra("groupName", groupName);
-                        context.startActivity(i);
+//                        //если только модератор одобряет заявки
+//                        if (group.isOnlyModeratorApprovingRequests()) {
+//                            if (group.isModerator()){
+//                                //пользователь - модератор, переход на approve activity
+//                                Toast.makeText(context, "вы модератор и можете рассмотреть заявки", Toast.LENGTH_SHORT).show();
+//                            } else {
+//                                Toast.makeText(context, "В этой группе только модератор рассматривает заявки", Toast.LENGTH_SHORT).show();
+//                            }
+//
+//                        } else {
+//                            //заявки одобряют модераторы и пользователи, переход на approve activity
+//
+//                        }
+                        ((Tab2) fragment).checkGroupAndUserStatus(group.getGroupName());
+
+
                     } else {
                         Toast.makeText(context, "Ваша заявка еще на рассмотрении", Toast.LENGTH_SHORT).show();
                     }
@@ -136,3 +145,8 @@ public class GroupListAdapter extends BaseAdapter {
         alertdialog.show();
     }
 }
+
+//    String groupName = group.getGroupName();
+//    Intent i = new Intent(context, Approve.class);
+//                            i.putExtra("groupName", groupName);
+//                                    context.startActivity(i);

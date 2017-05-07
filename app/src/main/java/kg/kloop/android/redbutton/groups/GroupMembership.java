@@ -9,7 +9,15 @@ public class GroupMembership {
     private boolean isMember;
     private boolean isPending;
     private boolean isOnlyModeratorApprovingRequests;
+    private boolean isModerator;
 
+    public boolean isModerator() {
+        return isModerator;
+    }
+
+    public void setModerator(boolean moderator) {
+        isModerator = moderator;
+    }
 
     public GroupMembership(){
 

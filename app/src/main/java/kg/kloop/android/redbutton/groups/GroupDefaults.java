@@ -13,5 +13,6 @@ public class GroupDefaults {
     public static final String usersBranch = "Users";
     public static final String usersGroupsChild = "groups";
     public static final String usersPendingChild = "pending";
+    public static final String groupsIsOnlyModeratorApprovingRequestField = "onlyModeratorApprovingRequests";
 
 }

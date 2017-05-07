@@ -3,10 +3,12 @@ package kg.kloop.android.redbutton.groups;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.alexwalker.sendsmsapp.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -15,6 +17,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -24,6 +27,7 @@ public class Tab2 extends Fragment {
     private GroupListAdapter adapter;
     private ArrayList<GroupMembership> myGroupsList;
     private DatabaseReference userGroupsReference;
+    private DatabaseReference groupsReference;
     private String userId;
     private static final String TAG = "Tab2 log";
     View v;
@@ -95,6 +99,7 @@ public class Tab2 extends Fragment {
     private void init(){
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         userGroupsReference = FirebaseDatabase.getInstance().getReference(GroupDefaults.usersBranch).child(userId);
+        groupsReference = FirebaseDatabase.getInstance().getReference(GroupDefaults.groupsBranch);
         myGroupsList = new ArrayList<>();
         mygroupsListview = (ListView) v.findViewById(R.id.mygroupsListview);
         adapter = new GroupListAdapter(v.getContext(), myGroupsList, Tab2.this );
@@ -106,6 +111,7 @@ public class Tab2 extends Fragment {
         GroupMembership groupMembership = new GroupMembership(groupname, isMember, !isMember);
         myGroupsList.add(groupMembership);
         adapter.notifyDataSetChanged();
+
     }
 
     private void updateListOnChildRemoved(DataSnapshot dataSnapshot){
@@ -113,10 +119,50 @@ public class Tab2 extends Fragment {
         for (GroupMembership groupMembership: myGroupsList){
             if (groupMembership.getGroupName().equals(groupName)){
                 myGroupsList.remove(groupMembership);
-
                 break;
             }
         }
         adapter.notifyDataSetChanged();
+    }
+
+    public void checkGroupAndUserStatus(String groupName){
+        groupsReference.child(groupName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean onlyModeratorApprovingRequests = false;
+                boolean isModerator = false;
+
+                for (DataSnapshot postsnapshot: dataSnapshot.getChildren()){
+                    if (postsnapshot.getKey().equals(GroupDefaults.groupsIsOnlyModeratorApprovingRequestField)){
+                        onlyModeratorApprovingRequests = (Boolean) postsnapshot.getValue();
+                    }
+                    if (postsnapshot.getKey().equals(GroupDefaults.moderatorsChild)){
+                        if (postsnapshot.hasChild(userId)){
+                            isModerator = true;
+                            Log.d(TAG, "user is moderator");
+                        }
+                    }
+                }
+
+                if (onlyModeratorApprovingRequests){
+                    //onlyModerator in this group is able to approve requests, check user status in this group
+                    if (isModerator){
+                        Toast.makeText(v.getContext(), "Пользователь модератор, добро", Toast.LENGTH_SHORT).show();
+
+                    } else{
+                        Toast.makeText(v.getContext(), "В этой группе только модератор одобряет, вы не модератор", Toast.LENGTH_SHORT).show();
+                    }
+
+                } else {
+                    Toast.makeText(v.getContext(), "Все одобряют, добро", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "do no have access to database");
+            }
+        });
+
     }
 }

@@ -314,8 +314,12 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.groups:
                 //startActivity(new Intent(MainActivity.this, GroupsList.class));
-                startActivity(new Intent(MainActivity.this, SlidingGroupsActivity.class));
-                break;
+                if (firebaseUser != null) {
+                    startActivity(new Intent(MainActivity.this, SlidingGroupsActivity.class));
+                    break;
+                } else {
+                    Toast.makeText(this, "You need to log in", Toast.LENGTH_SHORT).show();
+                }
 
         }
         return super.onOptionsItemSelected(item);
